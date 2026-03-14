@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentBench-Live — Real-Time Agent Leaderboard</title>
+  <meta name="description" content="The real-time leaderboard for AI agent task execution. We test how well agents get things done.">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
+
+    header {
+      text-align: center;
+      padding: 48px 0 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 2.4em;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    header h1 span { color: var(--accent); }
+
+    header p {
+      color: var(--muted);
+      font-size: 1.1em;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      padding: 20px 0;
+      margin: 24px 0;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      font-size: 0.85em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .filters {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 24px 0;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      color: var(--muted);
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    thead th:hover { color: var(--accent); }
+    thead th.sort-asc::after { content: " ▲"; }
+    thead th.sort-desc::after { content: " ▼"; }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
+
+    td {
+      padding: 14px 16px;
+      vertical-align: middle;
+    }
+
+    .rank {
+      font-weight: 700;
+      font-size: 1.1em;
+      width: 50px;
+    }
+
+    .rank-1 { color: var(--gold); }
+    .rank-2 { color: var(--silver); }
+    .rank-3 { color: var(--bronze); }
+
+    .agent-name {
+      font-weight: 600;
+      font-size: 1.05em;
+    }
+
+    .score-bar-container {
+      width: 120px;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .score-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .score-high { background: var(--green); }
+    .score-mid { background: var(--yellow); }
+    .score-low { background: var(--red); }
+
+    .domain-scores {
+      display: flex;
+      gap: 4px;
+    }
+
+    .domain-chip {
+      font-size: 0.75em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--card);
+      border: 1px solid var(--border);
+    }
+
+    .pass-rate {
+      font-weight: 600;
+    }
+
+    .pass-high { color: var(--green); }
+    .pass-mid { color: var(--yellow); }
+    .pass-low { color: var(--red); }
+
+    .methodology {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin: 40px 0;
+    }
+
+    .methodology h2 {
+      margin-bottom: 16px;
+      font-size: 1.2em;
+    }
+
+    .methodology ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .methodology li {
+      padding: 4px 0;
+      color: var(--muted);
+    }
+
+    .methodology li::before {
+      content: "→ ";
+      color: var(--accent);
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--muted);
+      font-size: 0.9em;
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 0;
+      color: var(--muted);
+    }
+
+    .empty-state h2 { margin-bottom: 12px; }
+
+    .cta-btn {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 10px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 16px;
+      transition: opacity 0.2s;
+    }
+
+    .cta-btn:hover { opacity: 0.9; }
+
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.6em; }
+      .stats-bar { gap: 16px; }
+      .stat-value { font-size: 1.4em; }
+      .score-bar-container { width: 60px; }
+      td, th { padding: 10px 8px; font-size: 0.9em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span>AgentBench</span>-Live</h1>
+      <p>The real-time leaderboard for AI agent task execution. We don't test how well agents chat — we test how well they <strong>get things done</strong>.</p>
+    </header>
+
+    <div class="stats-bar" id="stats-bar">
+      <div class="stat">
+        <div class="stat-value" id="stat-agents">—</div>
+        <div class="stat-label">Agents Tested</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-tasks">10</div>
+        <div class="stat-label">Benchmark Tasks</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-domains">5</div>
+        <div class="stat-label">Domains</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="stat-trials">3</div>
+        <div class="stat-label">Trials (pass@k)</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-domain="all">All Domains</button>
+      <button class="filter-btn" data-domain="code">Code</button>
+      <button class="filter-btn" data-domain="research">Research</button>
+      <button class="filter-btn" data-domain="data">Data</button>
+      <button class="filter-btn" data-domain="tool-use">Tool Use</button>
+      <button class="filter-btn" data-domain="multi-step">Multi-step</button>
+    </div>
+
+    <div id="leaderboard-container">
+      <div class="empty-state" id="empty-state">
+        <h2>First benchmark coming soon</h2>
+        <p>We're running the initial benchmark against Claude Code, OpenClaw, Gemini CLI, and more.</p>
+        <p style="margin-top: 8px;">Results will appear here automatically.</p>
+        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn">Star on GitHub</a>
+      </div>
+
+      <table id="leaderboard-table" style="display: none;">
+        <thead>
+          <tr>
+            <th data-sort="rank">Rank</th>
+            <th data-sort="agent">Agent</th>
+            <th data-sort="score">Overall Score</th>
+            <th data-sort="pass_rate">pass@3</th>
+            <th>Domains</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body"></tbody>
+      </table>
+    </div>
+
+    <div class="methodology">
+      <h2>Methodology</h2>
+      <ul>
+        <li><strong>5 domains</strong>: Code, Research, Data Analysis, Tool Use, Multi-step Workflows</li>
+        <li><strong>10 benchmark tasks</strong> with Easy/Medium/Hard difficulty levels</li>
+        <li><strong>pass@k reliability</strong>: Each task run 3 times — we report consistency, not best-of</li>
+        <li><strong>Sandboxed execution</strong>: Every task runs in an isolated environment</li>
+        <li><strong>Dual scoring</strong>: Automated tests + LLM-as-Judge for subjective tasks</li>
+        <li><strong>CLI agents first</strong>: Claude Code, OpenClaw, Gemini CLI, Codex CLI</li>
+        <li><strong>Fully reproducible</strong>: <code>pip install agentbench-live && agentbench run --agent &lt;name&gt;</code></li>
+      </ul>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://github.com/jackjin1997/AgentBench-Live">GitHub</a> ·
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md">Submit Tasks</a> ·
+        MIT License
+      </p>
+      <p style="margin-top: 8px;">Built with the belief that the best way to improve agents is to measure them honestly.</p>
+    </footer>
+  </div>
+
+  <script>
+    const DATA_URL = './data/rankings.json';
+
+    async function loadLeaderboard() {
+      try {
+        const res = await fetch(DATA_URL);
+        if (!res.ok) return;
+        const data = await res.json();
+        renderLeaderboard(data);
+      } catch (e) {
+        // Data not available yet — show empty state
+      }
+    }
+
+    function renderLeaderboard(data) {
+      if (!data.rankings || data.rankings.length === 0) return;
+
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('leaderboard-table').style.display = 'table';
+      document.getElementById('stat-agents').textContent = data.total_agents;
+
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '';
+
+      data.rankings.forEach((entry, i) => {
+        const rank = i + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : '';
+        const score = entry.avg_score;
+        const scoreClass = score >= 0.8 ? 'score-high' : score >= 0.5 ? 'score-mid' : 'score-low';
+        const passClass = entry.pass_rate >= 0.8 ? 'pass-high' : entry.pass_rate >= 0.5 ? 'pass-mid' : 'pass-low';
+
+        const domainChips = (entry.domain_scores || []).map(d =>
+          `<span class="domain-chip">${d.domain}: ${(d.score * 100).toFixed(0)}%</span>`
+        ).join('');
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="rank ${rankClass}">#${rank}</td>
+          <td class="agent-name">${entry.agent}</td>
+          <td>
+            <span class="score-bar-container">
+              <span class="score-bar ${scoreClass}" style="width: ${score * 100}%"></span>
+            </span>
+            ${(score * 100).toFixed(1)}%
+          </td>
+          <td class="pass-rate ${passClass}">${(entry.pass_rate * 100).toFixed(0)}%</td>
+          <td class="domain-scores">${domainChips || '—'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // TODO: filter by domain when per-domain data is available
+      });
+    });
+
+    // Column sorting
+    let currentSort = { col: 'rank', dir: 'asc' };
+    document.querySelectorAll('thead th[data-sort]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.sort;
+        if (currentSort.col === col) {
+          currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort = { col, dir: col === 'score' || col === 'pass_rate' ? 'desc' : 'asc' };
+        }
+        document.querySelectorAll('thead th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+        th.classList.add(`sort-${currentSort.dir}`);
+        // TODO: re-sort table rows
+      });
+    });
+
+    loadLeaderboard();
+  </script>
+</body>
+</html>

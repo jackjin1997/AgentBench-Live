@@ -1,0 +1,6 @@
+{
+  "rankings": [],
+  "total_agents": 0,
+  "last_updated": "2026-03-14T00:00:00Z",
+  "note": "First benchmark results coming soon. Run: agentbench run --agent claude-code"
+}
