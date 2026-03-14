@@ -1,23 +1,60 @@
 {
-  "rankings": [
+  "updated_at": "2026-03-15",
+  "benchmark_version": "0.1.0",
+  "tasks_count": 10,
+  "trials_per_task": 1,
+  "agents": [
     {
-      "agent": "claude-code",
-      "avg_score": 1.0,
-      "pass_rate": 1.0,
-      "total_tasks": 2,
-      "runs": 1,
-      "domain_scores": [
-        {
-          "domain": "code",
-          "score": 1.0
-        },
-        {
-          "domain": "code",
-          "score": 1.0
-        }
+      "rank": 1,
+      "name": "Claude Code",
+      "slug": "claude-code",
+      "overall_score": 0.604,
+      "pass_rate": 0.5,
+      "domains": {
+        "code": {"score": 1.0, "pass_rate": 1.0},
+        "data": {"score": 0.79, "pass_rate": 0.5},
+        "multi_step": {"score": 0.88, "pass_rate": 1.0},
+        "research": {"score": 0.35, "pass_rate": 0.0},
+        "tool_use": {"score": 0.0, "pass_rate": 0.0}
+      },
+      "tasks": [
+        {"task_id": "code-001", "score": 1.0, "passed": true, "time_seconds": null},
+        {"task_id": "code-002", "score": 1.0, "passed": true, "time_seconds": null},
+        {"task_id": "data-001", "score": 0.88, "passed": true, "time_seconds": null},
+        {"task_id": "data-002", "score": 0.7, "passed": false, "time_seconds": null},
+        {"task_id": "multi-001", "score": 0.88, "passed": true, "time_seconds": null},
+        {"task_id": "multi-002", "score": 0.88, "passed": true, "time_seconds": null},
+        {"task_id": "research-001", "score": 0.0, "passed": false, "time_seconds": null},
+        {"task_id": "research-002", "score": 0.7, "passed": false, "time_seconds": null},
+        {"task_id": "tool-001", "score": 0.0, "passed": false, "time_seconds": null},
+        {"task_id": "tool-002", "score": 0.0, "passed": false, "time_seconds": null}
+      ]
+    },
+    {
+      "rank": 2,
+      "name": "Gemini CLI",
+      "slug": "gemini-cli",
+      "overall_score": 0.516,
+      "pass_rate": 0.3,
+      "domains": {
+        "code": {"score": 1.0, "pass_rate": 1.0},
+        "data": {"score": 0.49, "pass_rate": 0.0},
+        "multi_step": {"score": 0.74, "pass_rate": 0.5},
+        "research": {"score": 0.35, "pass_rate": 0.0},
+        "tool_use": {"score": 0.0, "pass_rate": 0.0}
+      },
+      "tasks": [
+        {"task_id": "code-001", "score": 1.0, "passed": true, "time_seconds": null},
+        {"task_id": "code-002", "score": 1.0, "passed": true, "time_seconds": null},
+        {"task_id": "data-001", "score": 0.28, "passed": false, "time_seconds": null},
+        {"task_id": "data-002", "score": 0.7, "passed": false, "time_seconds": null},
+        {"task_id": "multi-001", "score": 0.6, "passed": false, "time_seconds": null},
+        {"task_id": "multi-002", "score": 0.88, "passed": true, "time_seconds": null},
+        {"task_id": "research-001", "score": 0.0, "passed": false, "time_seconds": null},
+        {"task_id": "research-002", "score": 0.7, "passed": false, "time_seconds": null},
+        {"task_id": "tool-001", "score": 0.0, "passed": false, "time_seconds": null},
+        {"task_id": "tool-002", "score": 0.0, "passed": false, "time_seconds": null}
       ]
     }
-  ],
-  "total_agents": 1,
-  "last_updated": "2026-03-14T14:55:26Z"
+  ]
 }

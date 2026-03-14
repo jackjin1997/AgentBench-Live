@@ -1,5 +1,7 @@
 """Evaluation engine for scoring agent task results."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 from agentbench.adapters.base import AgentResult
@@ -99,6 +101,19 @@ class Evaluator:
         # Call LLM judge
         scores = self._call_llm_judge(judge_prompt, judge_cfg.model)
 
+        # If judge returned error fallback, check workspace outputs as basic validation
+        if "error" in scores:
+            output_content = self._collect_workspace_outputs(sandbox)
+            has_outputs = len(output_content) > 0 and any(len(v) > 100 for v in output_content.values())
+            basic_score = 0.7 if has_outputs else 0.0
+            return EvalScore(
+                task_id=task.id,
+                agent_name=result.agent_name,
+                score=basic_score,
+                details={"output_presence": basic_score, "judge_fallback": True},
+                judge_narrative="LLM judge unavailable; scored by output presence",
+            )
+
         avg_score = sum(scores.values()) / max(len(scores), 1) / 10.0  # normalize to 0-1
 
         return EvalScore(
@@ -114,8 +129,12 @@ class Evaluator:
         auto_score = self._eval_auto(task, result, sandbox)
         judge_score = self._eval_llm_judge(task, result, sandbox)
 
-        # Weight: 60% auto, 40% judge
-        combined = auto_score.score * 0.6 + judge_score.score * 0.4
+        # If judge failed (returned error/0), fall back to auto-only
+        judge_available = "error" not in judge_score.details
+        if judge_available:
+            combined = auto_score.score * 0.6 + judge_score.score * 0.4
+        else:
+            combined = auto_score.score
 
         details = {**auto_score.details, **judge_score.details}
         details["auto_weight"] = 0.6

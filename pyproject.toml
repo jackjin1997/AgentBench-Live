@@ -8,13 +8,15 @@ version = "0.1.0"
 description = "The real-time leaderboard for AI agent task execution"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 authors = [{ name = "AgentBench-Live Contributors" }]
-keywords = ["ai", "agents", "benchmark", "evaluation", "leaderboard"]
+keywords = ["ai", "agents", "benchmark", "evaluation", "leaderboard", "cli", "claude-code", "gemini-cli"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
@@ -40,5 +42,5 @@ dev = [
 agentbench = "agentbench.cli:main"
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py39"
 line-length = 100

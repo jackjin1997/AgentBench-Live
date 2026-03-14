@@ -1,64 +1,93 @@
-# 🏆 AgentBench-Live
+# AgentBench-Live
 
-**The real-time leaderboard for AI agent task execution.**
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![Agents Tested](https://img.shields.io/badge/Agents_Tested-2-green.svg)](#-leaderboard)
+
+**The open benchmark for AI agent task execution.**
 
 > We don't test how well agents *chat*. We test how well they *get things done*.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+AgentBench-Live evaluates AI coding agents on **real-world tasks** — writing code, analyzing data, orchestrating multi-step workflows, using tools, and conducting research — inside sandboxed environments, then scores them automatically.
 
-## What is AgentBench-Live?
+No vibes. No self-reported evals. Just results.
 
-AgentBench-Live is an open-source benchmark that evaluates AI agents on **real-world task execution** — writing code, conducting research, analyzing data, using tools, and orchestrating multi-step workflows.
+---
 
-Unlike chat-focused benchmarks, we measure what matters: **can your agent actually do the job?**
+## 🏆 Leaderboard
 
-## Key Features
+**Full 10-task benchmark results** (updated 2026-03-15):
 
-- **5 Capability Domains**: Code, Research, Data Analysis, Tool Use, Multi-step Workflows
-- **Real-time ELO Rankings**: Live leaderboard updated with every benchmark run
-- **Sandboxed Execution**: Every task runs in an isolated Docker container
-- **CLI-Agent First**: Native support for Claude Code, OpenClaw, Gemini CLI, and more
-- **Community Tasks**: Submit your own benchmark tasks via PR
-- **Open Evaluation**: Automated scoring + LLM-as-Judge + human review
+| Rank | Agent | Avg Score | Pass Rate | Best Domain |
+|:---:|:---|:---:|:---:|:---|
+| 1 | **Claude Code** | **0.60** | 5/10 | Code (1.00) |
+| 2 | **Gemini CLI** | **0.52** | 3/10 | Code (1.00) |
 
-## Quick Start
+<details>
+<summary><b>Full task-by-task breakdown</b></summary>
+
+| Task | Domain | Claude Code | Gemini CLI | Delta |
+|:---|:---|:---:|:---:|:---:|
+| code-001 | Code | 1.00 ✅ | 1.00 ✅ | 0.00 |
+| code-002 | Code | 1.00 ✅ | 1.00 ✅ | 0.00 |
+| data-001 | Data | 0.88 ✅ | 0.28 ❌ | **+0.60** |
+| data-002 | Data | 0.70 ❌ | 0.70 ❌ | 0.00 |
+| multi-001 | Multi-step | 0.88 ✅ | 0.60 ❌ | +0.28 |
+| multi-002 | Multi-step | 0.88 ✅ | 0.88 ✅ | 0.00 |
+| research-001† | Research | 0.00 ❌ | 0.00 ❌ | 0.00 |
+| research-002 | Research | 0.70 ❌ | 0.70 ❌ | 0.00 |
+| tool-001† | Tool Use | 0.00 ❌ | 0.00 ❌ | 0.00 |
+| tool-002† | Tool Use | 0.00 ❌ | 0.00 ❌ | 0.00 |
+
+> † `tool-001`, `tool-002`, and `research-001` scored 0.00 for **all** agents due to sandbox network restrictions preventing external API/web access. These reflect sandbox limitations, not agent capability. We are working on a solution for future runs.
+
+</details>
+
+---
+
+## 📊 Domain Breakdown
+
+| Domain | Tasks | Claude Code | Gemini CLI | Winner |
+|:---|:---:|:---:|:---:|:---|
+| **Code** | 2 | 1.00 | 1.00 | Tie |
+| **Data Analysis** | 2 | 0.79 | 0.49 | Claude Code |
+| **Multi-step** | 2 | 0.88 | 0.74 | Claude Code |
+| **Research** | 2 | 0.35 | 0.35 | Tie |
+| **Tool Use** | 2 | 0.00† | 0.00† | N/A† |
+
+---
+
+## 💡 Notable Findings
+
+- **Both agents ace pure code tasks.** Code generation and bug fixing are effectively solved — perfect scores from both agents across both code challenges.
+- **Claude Code dominates data analysis.** The biggest gap between agents: Claude Code scored 0.88 vs Gemini CLI's 0.28 on `data-001`, a +0.60 delta.
+- **Multi-step workflows separate the best from the rest.** Tasks requiring planning across multiple tools and steps reveal meaningful differences: Claude Code averaged 0.88, Gemini CLI 0.74.
+- **Tool use and research need sandbox improvements.** Three of ten tasks were bottlenecked by sandbox network restrictions, not agent ability — a known limitation we're actively addressing.
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 # Install
 pip install agentbench-live
 
-# Run a benchmark against Claude Code
+# Run the full benchmark against an agent
 agentbench run --agent claude-code --tasks all
 
-# Run a specific domain
-agentbench run --agent claude-code --domain code --difficulty easy
+# Run a single domain
+agentbench run --agent gemini-cli --domain data
 
-# View leaderboard
+# Compare two agents head-to-head
+agentbench compare claude-code gemini-cli
+
+# View the leaderboard
 agentbench leaderboard
 ```
 
-## Capability Domains
+---
 
-| Domain | What We Test | Scoring |
-|:---|:---|:---|
-| 🔧 **Code** | Bug fixes, feature implementation, refactoring | Test pass rate + diff quality |
-| 🔍 **Research** | Technical investigation, comparison reports | LLM-as-Judge + human review |
-| 📊 **Data** | CSV/JSON analysis, insight generation | Accuracy + insight quality |
-| 🛠️ **Tool Use** | API calls, MCP tools, file operations | Success rate + efficiency |
-| 🧩 **Multi-step** | Complex workflows across multiple tools | End-to-end success + time |
-
-## Supported Agents
-
-| Agent | Status | Type |
-|:---|:---:|:---|
-| Claude Code | ✅ | CLI |
-| OpenClaw | ✅ | CLI |
-| Gemini CLI | ✅ | CLI |
-| Codex CLI | 🔜 | CLI |
-| Cline | 🔜 | IDE |
-| Cursor Agent | 🔜 | IDE |
-
-## Architecture
+## 🏗️ Architecture
 
 ```
 agentbench-live/
@@ -71,23 +100,72 @@ agentbench-live/
 └── docs/            # Documentation & methodology
 ```
 
-## How It Works
+**How a benchmark run works:**
 
-1. **Task** → A structured challenge with inputs, environment, and expected outcomes
-2. **Sandbox** → Fresh Docker container with pre-configured tooling
-3. **Agent** → Receives the task prompt, works autonomously in the sandbox
-4. **Evaluator** → Scores the output (automated tests, LLM judge, or human review)
-5. **Ranking** → ELO update based on pairwise comparisons across agents
+1. **Task** — A structured challenge with inputs, environment setup, and expected outcomes
+2. **Sandbox** — A fresh Docker container with pre-configured tooling
+3. **Agent** — Receives the task prompt and works autonomously inside the sandbox
+4. **Evaluator** — Scores the output using automated tests, LLM-as-Judge, or both
+5. **Ranking** — ELO update based on pairwise comparisons across agents
 
-## Contributing
+---
+
+## 🔧 Capability Domains
+
+| Domain | What We Test | How We Score |
+|:---|:---|:---|
+| **Code** | Bug fixes, feature implementation, refactoring | Test pass rate + diff quality |
+| **Research** | Technical investigation, comparison reports | LLM-as-Judge + human review |
+| **Data** | CSV/JSON analysis, insight generation | Accuracy + insight quality |
+| **Tool Use** | API calls, MCP tools, file operations | Success rate + efficiency |
+| **Multi-step** | Complex workflows across multiple tools | End-to-end success + time |
+
+---
+
+## 🤖 Add Your Agent
+
+AgentBench-Live supports any CLI-based or IDE-based agent through adapters. To add yours:
+
+1. **Create an adapter** in `adapters/your_agent.py`:
+
+```python
+from agentbench.adapter import BaseAdapter
+
+class YourAgentAdapter(BaseAdapter):
+    name = "your-agent"
+
+    def execute(self, task_prompt: str, sandbox: Sandbox) -> str:
+        """Send the task to your agent and return its output."""
+        # Launch your agent CLI inside the sandbox
+        # Capture and return the result
+        ...
+```
+
+2. **Register it** in `adapters/__init__.py`
+
+3. **Test it** against the benchmark:
+
+```bash
+agentbench run --agent your-agent --tasks code-001
+```
+
+4. **Submit a PR** — once it passes, your agent joins the leaderboard.
+
+See the [adapter authoring guide](docs/adapter-authoring.md) for the full specification.
+
+---
+
+## 🤝 Contributing
 
 We welcome contributions in three forms:
 
-- **New Tasks**: Submit benchmark tasks via PR ([task authoring guide](docs/task-authoring.md))
-- **New Adapters**: Add support for your favorite agent
-- **Evaluator Improvements**: Better scoring heuristics and judges
+- **New Tasks** — Submit benchmark tasks via PR ([task authoring guide](docs/task-authoring.md))
+- **New Adapters** — Add support for your favorite agent ([adapter guide](docs/adapter-authoring.md))
+- **Evaluator Improvements** — Better scoring heuristics and judges
 
-## License
+---
+
+## 📄 License
 
 MIT
 

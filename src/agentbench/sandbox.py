@@ -1,5 +1,8 @@
 """Docker sandbox for isolated task execution."""
 
+from __future__ import annotations
+
+import os
 import shutil
 import subprocess
 import tempfile
@@ -71,6 +74,7 @@ class Sandbox:
         """Run a command inside the sandbox workspace."""
         # Replace /workspace references with actual tmpdir path
         resolved_cmd = command.replace("/workspace", str(self.workspace))
+        env = {**os.environ, "WORKSPACE": str(self.workspace)}
         return subprocess.run(
             resolved_cmd,
             shell=True,
@@ -78,6 +82,7 @@ class Sandbox:
             capture_output=True,
             text=True,
             timeout=timeout,
+            env=env,
         )
 
     def cleanup(self):

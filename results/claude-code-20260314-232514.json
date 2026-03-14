@@ -1,0 +1,137 @@
+{
+  "agent": "claude-code",
+  "timestamp": "20260314-232514",
+  "scores": [
+    {
+      "task_id": "code-001",
+      "agent_name": "claude-code",
+      "score": 1.0,
+      "details": {
+        "auto_pass_rate": 1.0
+      },
+      "auto_passed": true,
+      "judge_narrative": "",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "code-002",
+      "agent_name": "claude-code",
+      "score": 1.0,
+      "details": {
+        "auto_pass_rate": 1.0
+      },
+      "auto_passed": true,
+      "judge_narrative": "",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "data-001",
+      "agent_name": "claude-code",
+      "score": 0.8799999999999999,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "output_presence": 0.7,
+        "judge_fallback": true,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": true,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "data-002",
+      "agent_name": "claude-code",
+      "score": 0.7,
+      "details": {
+        "output_presence": 0.7,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "multi-001",
+      "agent_name": "claude-code",
+      "score": 0.8799999999999999,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "output_presence": 0.7,
+        "judge_fallback": true,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": true,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "multi-002",
+      "agent_name": "claude-code",
+      "score": 0.8799999999999999,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "output_presence": 0.7,
+        "judge_fallback": true,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": true,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "research-001",
+      "agent_name": "claude-code",
+      "score": 0.0,
+      "details": {
+        "output_presence": 0.0,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "research-002",
+      "agent_name": "claude-code",
+      "score": 0.7,
+      "details": {
+        "output_presence": 0.7,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-001",
+      "agent_name": "claude-code",
+      "score": 0.0,
+      "details": {
+        "output_presence": 0.0,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-002",
+      "agent_name": "claude-code",
+      "score": 0.0,
+      "details": {
+        "auto_pass_rate": 0.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 10,
+    "avg_score": 0.604,
+    "pass_rate": 0.5
+  }
+}
