@@ -1,0 +1,47 @@
+id: research-001
+version: 1
+domain: research
+difficulty: easy
+title: "Compare vector databases for RAG workloads"
+description: |
+  The agent must research and produce a structured comparison of popular
+  vector databases (Chroma, Pinecone, Weaviate, Qdrant, Milvus) for
+  a RAG use case, covering performance, pricing, and self-hosting options.
+
+human_time_minutes: 20
+
+setup:
+  base_image: "python:3.12-slim"
+  files: []
+  install: ""
+  network: true
+
+prompt: |
+  Write a technical comparison report of 5 vector databases for a RAG
+  (Retrieval-Augmented Generation) production workload.
+
+  Databases to compare: Chroma, Pinecone, Weaviate, Qdrant, Milvus.
+
+  Your report must include:
+  1. A comparison table with: hosting model, license, max vectors, ANN algorithm, pricing tier
+  2. Pros and cons of each for a team of 5 engineers with ~10M documents
+  3. A recommendation with justification
+
+  Save your report to `/workspace/vector-db-comparison.md`.
+
+evaluation:
+  type: llm-judge
+  llm_judge:
+    rubric: |
+      Score 1-10 on each criterion:
+      - Accuracy: Are the facts about each database correct and up-to-date?
+      - Completeness: Are all 5 databases covered with all requested dimensions?
+      - Structure: Is the report well-organized with the requested table format?
+      - Reasoning: Is the recommendation well-justified for the given scenario?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 600
+
+tags: ["vector-db", "rag", "comparison", "report"]
+created: "2026-03-14"
+author: "agentbench-live"

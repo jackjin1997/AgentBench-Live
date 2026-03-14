@@ -1,0 +1,51 @@
+id: data-002
+version: 1
+domain: data
+difficulty: medium
+title: "Detect anomalies in application server logs"
+description: |
+  Given a JSON Lines log file from a web server, the agent must parse the logs,
+  detect anomalies (error spikes, latency outliers, unusual traffic patterns),
+  and produce a structured incident report.
+
+human_time_minutes: 20
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/data-002/"
+      dst: "/workspace/"
+  install: "pip install pandas"
+  network: false
+
+prompt: |
+  The file `/workspace/server.log.jsonl` contains 24 hours of web server access
+  logs in JSON Lines format. Each line has: timestamp, method, path, status_code,
+  response_time_ms, user_agent, ip.
+
+  Your task:
+  1. Parse the logs and compute hourly statistics: request count, error rate
+     (4xx + 5xx), p50/p95/p99 response times.
+  2. Identify anomalous periods where:
+     - Error rate exceeds 2x the daily average
+     - p99 latency exceeds 3x the daily p99
+     - Request volume drops below 50% of hourly average (possible outage)
+  3. For each anomaly, identify the most affected endpoints (paths).
+  4. Produce an incident timeline and save to `/workspace/incident-report.md`.
+
+evaluation:
+  type: llm-judge
+  llm_judge:
+    rubric: |
+      Score 1-10:
+      - Detection accuracy: Were the injected anomalies correctly identified?
+      - False positive rate: Were non-anomalous periods correctly excluded?
+      - Root cause analysis: Were affected endpoints correctly identified?
+      - Report quality: Is the incident timeline clear and actionable?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 300
+
+tags: ["logs", "anomaly-detection", "observability", "incident"]
+created: "2026-03-14"
+author: "agentbench-live"

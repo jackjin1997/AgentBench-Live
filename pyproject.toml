@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentbench-live"
+version = "0.1.0"
+description = "The real-time leaderboard for AI agent task execution"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "AgentBench-Live Contributors" }]
+keywords = ["ai", "agents", "benchmark", "evaluation", "leaderboard"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "click>=8.0",
+    "pyyaml>=6.0",
+    "docker>=7.0",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+eval = [
+    "openai>=1.0",
+    "anthropic>=0.40",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.5",
+]
+
+[project.scripts]
+agentbench = "agentbench.cli:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100

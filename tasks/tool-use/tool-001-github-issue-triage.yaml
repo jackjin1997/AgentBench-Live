@@ -1,0 +1,49 @@
+id: tool-001
+version: 1
+domain: tool-use
+difficulty: easy
+title: "Triage GitHub issues by label and priority"
+description: |
+  The agent must use the GitHub CLI (gh) to fetch open issues from a
+  specified repository, categorize them by type, and produce a triage summary.
+
+human_time_minutes: 10
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/tool-001/"
+      dst: "/workspace/"
+  install: "apt-get update && apt-get install -y gh"
+  network: true
+
+prompt: |
+  Use the `gh` CLI to fetch the 20 most recent open issues from the repository
+  `langchain-ai/langchain`.
+
+  For each issue:
+  1. Extract: issue number, title, labels, creation date, comment count.
+  2. Categorize as: bug, feature-request, question, or other (based on labels/title).
+  3. Estimate priority (P0-P3) based on: label signals, comment count, and age.
+
+  Produce a triage report saved to `/workspace/triage.md` with:
+  - A summary table sorted by estimated priority
+  - Count of issues per category
+  - Top 3 issues that need immediate attention and why
+
+evaluation:
+  type: llm-judge
+  llm_judge:
+    rubric: |
+      Score 1-10:
+      - Tool proficiency: Was `gh` used correctly and efficiently?
+      - Categorization accuracy: Are issues correctly classified?
+      - Priority reasoning: Are priority estimates reasonable and justified?
+      - Report utility: Would a maintainer find this triage actionable?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 300
+
+tags: ["github", "cli", "triage", "gh"]
+created: "2026-03-14"
+author: "agentbench-live"

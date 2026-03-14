@@ -1,0 +1,43 @@
+id: code-002
+version: 1
+domain: code
+difficulty: medium
+title: "Add exponential backoff retry to HTTP client"
+description: |
+  An HTTP client module lacks retry logic. The agent must implement
+  exponential backoff with jitter for transient failures (429, 500, 502, 503),
+  respecting a max_retries parameter. Verified by unit tests that mock HTTP responses.
+
+human_time_minutes: 15
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/code-002/"
+      dst: "/workspace/"
+  install: "pip install pytest requests"
+  network: false
+
+prompt: |
+  The file `/workspace/http_client.py` contains a simple HTTP client class `ApiClient`.
+  Currently it makes a single request attempt with no retry logic.
+
+  Your task:
+  1. Add retry logic to the `request` method with exponential backoff and jitter.
+  2. Retry on status codes: 429, 500, 502, 503.
+  3. Respect the `max_retries` parameter (default 3).
+  4. Base delay should be 1 second, doubled each retry, with random jitter up to 0.5s.
+  5. After exhausting retries, raise the last exception.
+
+  Run `pytest /workspace/test_http_client.py -v` to verify.
+
+evaluation:
+  type: auto
+  auto:
+    command: "pytest /workspace/test_http_client.py -v"
+    pass_threshold: 1.0
+  timeout_seconds: 180
+
+tags: ["feature", "http", "retry", "python"]
+created: "2026-03-14"
+author: "agentbench-live"

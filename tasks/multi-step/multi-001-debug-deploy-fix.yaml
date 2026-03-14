@@ -1,0 +1,51 @@
+id: multi-001
+version: 1
+domain: multi-step
+difficulty: medium
+title: "Debug failing tests, fix code, and generate changelog"
+description: |
+  A multi-step workflow: the agent must read failing test output, identify
+  the root cause across multiple files, fix the bugs, ensure all tests pass,
+  and generate a changelog entry.
+
+human_time_minutes: 20
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/multi-001/"
+      dst: "/workspace/"
+  install: "pip install pytest"
+  network: false
+
+prompt: |
+  The project in `/workspace/` has 3 failing tests. Your workflow:
+
+  1. Run `pytest /workspace/tests/ -v` to see which tests fail.
+  2. Read the test files and source code to understand the failures.
+  3. Fix the bugs in the source code (do NOT modify the tests).
+  4. Re-run `pytest /workspace/tests/ -v` to confirm all tests pass.
+  5. Generate a file `/workspace/CHANGELOG.md` entry describing what you fixed,
+     following the Keep a Changelog format (https://keepachangelog.com/).
+
+  All 3 bugs are in different source files. The tests are correct.
+
+evaluation:
+  type: composite
+  auto:
+    command: "pytest /workspace/tests/ -v && test -f /workspace/CHANGELOG.md"
+    pass_threshold: 1.0
+  llm_judge:
+    rubric: |
+      Score 1-10:
+      - Completeness: Were all 3 bugs found and fixed?
+      - Code quality: Are the fixes clean and minimal (not overly broad)?
+      - Changelog quality: Does it follow Keep a Changelog format with clear descriptions?
+      - Process: Did the agent follow a systematic debugging approach?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 600
+
+tags: ["multi-step", "debugging", "testing", "changelog"]
+created: "2026-03-14"
+author: "agentbench-live"

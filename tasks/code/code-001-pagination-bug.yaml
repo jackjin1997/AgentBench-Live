@@ -1,0 +1,38 @@
+id: code-001
+version: 1
+domain: code
+difficulty: easy
+title: "Fix off-by-one error in pagination"
+description: |
+  A REST API pagination helper has an off-by-one error causing page 2
+  to return the same results as page 1. The agent must identify and fix
+  the bug, verified by existing unit tests.
+
+human_time_minutes: 5
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/code-001/"
+      dst: "/workspace/"
+  install: "pip install pytest"
+  network: false
+
+prompt: |
+  The file `/workspace/paginator.py` implements a simple list paginator.
+  Users report that requesting page 2 returns the same items as page 1.
+
+  1. Read the code and identify the bug.
+  2. Fix it.
+  3. Run `pytest /workspace/test_paginator.py -v` to verify your fix passes all tests.
+
+evaluation:
+  type: auto
+  auto:
+    command: "pytest /workspace/test_paginator.py -v"
+    pass_threshold: 1.0
+  timeout_seconds: 120
+
+tags: ["bug-fix", "pagination", "python", "off-by-one"]
+created: "2026-03-14"
+author: "agentbench-live"

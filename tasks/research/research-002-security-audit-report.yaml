@@ -1,0 +1,50 @@
+id: research-002
+version: 1
+domain: research
+difficulty: medium
+title: "Produce a dependency security audit report"
+description: |
+  Given a Python project's requirements.txt, the agent must research known
+  CVEs, assess severity, and produce a prioritized remediation report.
+
+human_time_minutes: 30
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/research-002/"
+      dst: "/workspace/"
+  install: "pip install pip-audit"
+  network: true
+
+prompt: |
+  The file `/workspace/requirements.txt` contains dependencies for a production
+  Python web application.
+
+  Your task:
+  1. Audit all dependencies for known security vulnerabilities (CVEs).
+  2. For each vulnerability found, document: package, installed version,
+     CVE ID, severity (CVSS), and description.
+  3. Provide a prioritized remediation plan (fix highest severity first).
+  4. Where possible, suggest the minimum safe version to upgrade to.
+
+  You may use `pip-audit`, web searches, or any other tools available.
+
+  Save your report to `/workspace/security-audit.md`.
+
+evaluation:
+  type: llm-judge
+  llm_judge:
+    rubric: |
+      Score 1-10 on each criterion:
+      - Coverage: Were all vulnerable dependencies identified?
+      - Accuracy: Are CVE IDs and severity ratings correct?
+      - Actionability: Is the remediation plan clear and prioritized?
+      - Professionalism: Is this report suitable for a security team review?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 600
+
+tags: ["security", "audit", "cve", "python", "dependencies"]
+created: "2026-03-14"
+author: "agentbench-live"

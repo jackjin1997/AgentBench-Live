@@ -1,0 +1,51 @@
+id: data-001
+version: 1
+domain: data
+difficulty: easy
+title: "Analyze quarterly sales data and identify trends"
+description: |
+  Given a CSV of quarterly sales data, the agent must compute key metrics,
+  identify trends, and produce a summary with specific numerical answers.
+
+human_time_minutes: 10
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/data-001/"
+      dst: "/workspace/"
+  install: "pip install pandas"
+  network: false
+
+prompt: |
+  The file `/workspace/sales.csv` contains 2 years of monthly sales data with
+  columns: date, region, product, revenue, units_sold.
+
+  Answer these questions and save to `/workspace/analysis.md`:
+
+  1. What is the total revenue for each region?
+  2. Which product had the highest month-over-month growth rate?
+  3. Which quarter (Q1-Q4) had the highest average revenue across all regions?
+  4. Identify any months where revenue dropped >20% compared to the previous month, by region.
+  5. Write a 3-sentence executive summary of the key trends.
+
+  Show your calculations (code is fine). All numerical answers must be exact.
+
+evaluation:
+  type: composite
+  auto:
+    command: "python /workspace/check_answers.py"
+    pass_threshold: 0.8
+  llm_judge:
+    rubric: |
+      Score 1-10:
+      - Numerical accuracy: Do the computed numbers match expected values?
+      - Insight quality: Are the trend observations meaningful?
+      - Clarity: Is the executive summary concise and informative?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 300
+
+tags: ["data-analysis", "pandas", "csv", "sales"]
+created: "2026-03-14"
+author: "agentbench-live"

@@ -1,0 +1,50 @@
+id: tool-002
+version: 1
+domain: tool-use
+difficulty: medium
+title: "Build a data pipeline from a public API"
+description: |
+  The agent must fetch data from a public REST API, transform it,
+  and produce a structured output file. Tests correctness of API usage,
+  data transformation, and error handling.
+
+human_time_minutes: 15
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/tool-002/"
+      dst: "/workspace/"
+  install: "pip install requests"
+  network: true
+
+prompt: |
+  Build a Python script `/workspace/pipeline.py` that:
+
+  1. Fetches the top 30 most starred Python repositories from the GitHub REST API
+     (no auth required: GET https://api.github.com/search/repositories?q=language:python&sort=stars&per_page=30).
+  2. For each repository, extract: full_name, stars, forks, open_issues, description, license name.
+  3. Compute derived fields:
+     - stars_to_forks_ratio (stars / max(forks, 1))
+     - issue_density (open_issues / max(stars, 1) * 1000)
+  4. Sort by stars descending.
+  5. Save results to `/workspace/output.json` as a JSON array.
+  6. Save a summary to `/workspace/summary.md` with:
+     - Top 5 repos by stars
+     - Top 5 repos by stars_to_forks_ratio
+     - Average issue_density across all repos
+
+  Handle API errors gracefully (retry once on 5xx, skip on 4xx).
+
+  Then run: `python /workspace/pipeline.py`
+
+evaluation:
+  type: auto
+  auto:
+    command: "python /workspace/validate_pipeline.py"
+    pass_threshold: 0.8
+  timeout_seconds: 300
+
+tags: ["api", "pipeline", "github-api", "data-transform"]
+created: "2026-03-14"
+author: "agentbench-live"

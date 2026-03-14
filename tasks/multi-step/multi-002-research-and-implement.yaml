@@ -1,0 +1,61 @@
+id: multi-002
+version: 1
+domain: multi-step
+difficulty: hard
+title: "Research a library, implement a feature, write tests"
+description: |
+  End-to-end workflow: research an unfamiliar library's API via its docs,
+  implement a feature using it, write tests, and document the integration.
+
+human_time_minutes: 40
+
+setup:
+  base_image: "python:3.12-slim"
+  files:
+    - src: "fixtures/multi-002/"
+      dst: "/workspace/"
+  install: "pip install pytest httpx pydantic"
+  network: true
+
+prompt: |
+  The project in `/workspace/` is a CLI tool that currently reads config from
+  a YAML file. Your task is to add a new config source: fetching config from
+  a remote HTTP endpoint.
+
+  Workflow:
+  1. Read the existing codebase to understand the config loading architecture.
+  2. Research the `httpx` library docs to understand async HTTP client usage.
+  3. Implement a new `RemoteConfigLoader` class in `/workspace/config/remote.py` that:
+     - Fetches JSON config from a URL passed as parameter
+     - Validates the response using the existing Pydantic config schema
+     - Handles timeouts (5s), retries (2 attempts), and invalid JSON gracefully
+     - Integrates with the existing `ConfigManager` in `/workspace/config/manager.py`
+  4. Write tests in `/workspace/tests/test_remote_config.py` covering:
+     - Successful fetch and parse
+     - Timeout handling
+     - Invalid JSON response
+     - HTTP error responses
+  5. Add a brief section to `/workspace/README.md` documenting the remote config feature.
+
+  Verify: `pytest /workspace/tests/ -v` must pass (both existing and new tests).
+
+evaluation:
+  type: composite
+  auto:
+    command: "pytest /workspace/tests/ -v"
+    pass_threshold: 1.0
+  llm_judge:
+    rubric: |
+      Score 1-10:
+      - Research quality: Was httpx used idiomatically (not requests)?
+      - Implementation: Does RemoteConfigLoader integrate cleanly with existing architecture?
+      - Test coverage: Are all specified scenarios tested?
+      - Documentation: Is the README addition clear and accurate?
+      - Code quality: Is the code clean, typed, and follows existing conventions?
+    reference_answer: ""
+    model: "claude-sonnet-4-6"
+  timeout_seconds: 900
+
+tags: ["multi-step", "research", "implementation", "testing", "httpx"]
+created: "2026-03-14"
+author: "agentbench-live"
