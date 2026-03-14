@@ -1,5 +1,6 @@
 """Adapter for OpenClaw CLI agent."""
 
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -23,6 +24,7 @@ class OpenClawAdapter(AgentAdapter):
     ) -> AgentResult:
         start = time.monotonic()
         try:
+            env = self._build_env(workspace, network)
             result = subprocess.run(
                 [
                     "claw",
@@ -34,6 +36,7 @@ class OpenClawAdapter(AgentAdapter):
                 text=True,
                 timeout=timeout_seconds,
                 cwd=str(workspace),
+                env=env,
             )
             duration = time.monotonic() - start
             return AgentResult(
@@ -56,6 +59,19 @@ class OpenClawAdapter(AgentAdapter):
                 stderr=f"Timeout after {timeout_seconds}s",
                 duration_seconds=duration,
             )
+
+    @staticmethod
+    def _build_env(workspace: Path, network: bool) -> dict[str, str]:
+        """Build environment for the agent subprocess."""
+        if network:
+            env = {**os.environ, "WORKSPACE": str(workspace)}
+        else:
+            env = {
+                "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+                "HOME": os.environ.get("HOME", "/tmp"),
+                "WORKSPACE": str(workspace),
+            }
+        return env
 
     def is_available(self) -> bool:
         try:

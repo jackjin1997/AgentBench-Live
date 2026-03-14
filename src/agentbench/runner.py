@@ -71,9 +71,12 @@ def run_benchmark(
             console.print(f"  Trial {trial}/{trials}...", end=" ")
 
             with Sandbox(task) as sandbox:
+                # Resolve /workspace references to actual tmpdir path
+                resolved_prompt = sandbox.resolve_prompt(task.prompt)
+
                 # Run agent
                 result = adapter.run(
-                    prompt=task.prompt,
+                    prompt=resolved_prompt,
                     workspace=sandbox.workspace,
                     timeout_seconds=task.evaluation.timeout_seconds,
                     network=task.setup.network,

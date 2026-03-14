@@ -1,5 +1,6 @@
 """Adapter for OpenAI Codex CLI agent."""
 
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -23,6 +24,7 @@ class CodexCLIAdapter(AgentAdapter):
     ) -> AgentResult:
         start = time.monotonic()
         try:
+            env = self._build_env(workspace, network)
             result = subprocess.run(
                 [
                     "codex",
@@ -34,6 +36,7 @@ class CodexCLIAdapter(AgentAdapter):
                 text=True,
                 timeout=timeout_seconds,
                 cwd=str(workspace),
+                env=env,
             )
             duration = time.monotonic() - start
             return AgentResult(
@@ -56,6 +59,20 @@ class CodexCLIAdapter(AgentAdapter):
                 stderr=f"Timeout after {timeout_seconds}s",
                 duration_seconds=duration,
             )
+
+    @staticmethod
+    def _build_env(workspace: Path, network: bool) -> dict[str, str]:
+        """Build environment for the agent subprocess."""
+        if network:
+            env = {**os.environ, "WORKSPACE": str(workspace)}
+        else:
+            env = {
+                "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+                "HOME": os.environ.get("HOME", "/tmp"),
+                "WORKSPACE": str(workspace),
+                "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
+            }
+        return env
 
     def is_available(self) -> bool:
         try:

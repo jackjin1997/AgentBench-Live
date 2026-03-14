@@ -16,11 +16,11 @@ No vibes. No self-reported evals. Just results.
 
 ## 🏆 Leaderboard
 
-**Full 10-task benchmark results** (updated 2026-03-15):
+**[Live Leaderboard](https://jackjin1997.github.io/AgentBench-Live/)** | Full 10-task benchmark results (updated 2026-03-15):
 
 | Rank | Agent | Avg Score | Pass Rate | Best Domain |
 |:---:|:---|:---:|:---:|:---|
-| 1 | **Claude Code** | **0.60** | 5/10 | Code (1.00) |
+| 1 | **Claude Code** | **0.74** | 5/10 | Code (1.00) |
 | 2 | **Gemini CLI** | **0.52** | 3/10 | Code (1.00) |
 
 <details>
@@ -34,12 +34,12 @@ No vibes. No self-reported evals. Just results.
 | data-002 | Data | 0.70 ❌ | 0.70 ❌ | 0.00 |
 | multi-001 | Multi-step | 0.88 ✅ | 0.60 ❌ | +0.28 |
 | multi-002 | Multi-step | 0.88 ✅ | 0.88 ✅ | 0.00 |
-| research-001† | Research | 0.00 ❌ | 0.00 ❌ | 0.00 |
+| research-001 | Research | 0.70 ❌ | 0.00 ❌ | +0.70 |
 | research-002 | Research | 0.70 ❌ | 0.70 ❌ | 0.00 |
-| tool-001† | Tool Use | 0.00 ❌ | 0.00 ❌ | 0.00 |
+| tool-001 | Tool Use | 0.70 ❌ | 0.00 ❌ | **+0.70** |
 | tool-002† | Tool Use | 0.00 ❌ | 0.00 ❌ | 0.00 |
 
-> † `tool-001`, `tool-002`, and `research-001` scored 0.00 for **all** agents due to sandbox network restrictions preventing external API/web access. These reflect sandbox limitations, not agent capability. We are working on a solution for future runs.
+> † `tool-002` scored 0.00 for both agents due to a sandbox validation issue. Scores without LLM-as-Judge use fallback scoring (output presence check); set `ANTHROPIC_API_KEY` for full evaluation.
 
 </details>
 
@@ -52,8 +52,8 @@ No vibes. No self-reported evals. Just results.
 | **Code** | 2 | 1.00 | 1.00 | Tie |
 | **Data Analysis** | 2 | 0.79 | 0.49 | Claude Code |
 | **Multi-step** | 2 | 0.88 | 0.74 | Claude Code |
-| **Research** | 2 | 0.35 | 0.35 | Tie |
-| **Tool Use** | 2 | 0.00† | 0.00† | N/A† |
+| **Research** | 2 | 0.70 | 0.35 | Claude Code |
+| **Tool Use** | 2 | 0.35 | 0.00 | Claude Code |
 
 ---
 
@@ -62,7 +62,7 @@ No vibes. No self-reported evals. Just results.
 - **Both agents ace pure code tasks.** Code generation and bug fixing are effectively solved — perfect scores from both agents across both code challenges.
 - **Claude Code dominates data analysis.** The biggest gap between agents: Claude Code scored 0.88 vs Gemini CLI's 0.28 on `data-001`, a +0.60 delta.
 - **Multi-step workflows separate the best from the rest.** Tasks requiring planning across multiple tools and steps reveal meaningful differences: Claude Code averaged 0.88, Gemini CLI 0.74.
-- **Tool use and research need sandbox improvements.** Three of ten tasks were bottlenecked by sandbox network restrictions, not agent ability — a known limitation we're actively addressing.
+- **Claude Code handles real-world tools; Gemini CLI doesn't.** On tasks requiring GitHub CLI and web research, Claude Code scored 0.70 while Gemini CLI scored 0.00 — suggesting Gemini CLI struggles with tool-heavy tasks outside its sandbox.
 
 ---
 

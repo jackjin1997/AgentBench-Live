@@ -1,6 +1,7 @@
 """Adapter for Claude Code CLI agent."""
 
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -24,6 +25,7 @@ class ClaudeCodeAdapter(AgentAdapter):
     ) -> AgentResult:
         start = time.monotonic()
         try:
+            env = self._build_env(workspace, network)
             result = subprocess.run(
                 [
                     "claude",
@@ -35,6 +37,7 @@ class ClaudeCodeAdapter(AgentAdapter):
                 text=True,
                 timeout=timeout_seconds,
                 cwd=str(workspace),
+                env=env,
             )
             duration = time.monotonic() - start
             return AgentResult(
@@ -57,6 +60,25 @@ class ClaudeCodeAdapter(AgentAdapter):
                 stderr=f"Timeout after {timeout_seconds}s",
                 duration_seconds=duration,
             )
+
+    @staticmethod
+    def _build_env(workspace: Path, network: bool) -> dict[str, str]:
+        """Build environment for the agent subprocess.
+
+        When network=True, passes through the full user environment so
+        tools like gh, curl, and HTTP libraries work with existing auth.
+        """
+        if network:
+            env = {**os.environ, "WORKSPACE": str(workspace)}
+        else:
+            # Minimal env: just enough to run the agent
+            env = {
+                "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
+                "HOME": os.environ.get("HOME", "/tmp"),
+                "WORKSPACE": str(workspace),
+                "ANTHROPIC_API_KEY": os.environ.get("ANTHROPIC_API_KEY", ""),
+            }
+        return env
 
     def is_available(self) -> bool:
         try:

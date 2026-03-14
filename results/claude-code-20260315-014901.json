@@ -1,0 +1,34 @@
+{
+  "agent": "claude-code",
+  "timestamp": "20260315-014901",
+  "scores": [
+    {
+      "task_id": "tool-001",
+      "agent_name": "claude-code",
+      "score": 0.7,
+      "details": {
+        "output_presence": 0.7,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "LLM judge unavailable; scored by output presence",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-002",
+      "agent_name": "claude-code",
+      "score": 0.0,
+      "details": {
+        "auto_pass_rate": 0.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.35,
+    "pass_rate": 0.0
+  }
+}
