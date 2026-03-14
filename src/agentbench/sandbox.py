@@ -37,7 +37,12 @@ class Sandbox:
         # Copy fixture files into workspace
         for file_mapping in self.task.setup.files:
             src = Path("tasks") / file_mapping["src"]
-            dst = self._workspace / file_mapping.get("dst", "").lstrip("/")
+            raw_dst = file_mapping.get("dst", "").strip("/")
+            # In local mode, /workspace/ maps to the tmpdir root
+            if raw_dst == "workspace" or raw_dst == "":
+                dst = self._workspace
+            else:
+                dst = self._workspace / raw_dst
             if src.is_dir():
                 shutil.copytree(src, dst, dirs_exist_ok=True)
             elif src.is_file():
@@ -64,8 +69,10 @@ class Sandbox:
 
     def run_command(self, command: str, timeout: int = 60) -> subprocess.CompletedProcess:
         """Run a command inside the sandbox workspace."""
+        # Replace /workspace references with actual tmpdir path
+        resolved_cmd = command.replace("/workspace", str(self.workspace))
         return subprocess.run(
-            command,
+            resolved_cmd,
             shell=True,
             cwd=str(self.workspace),
             capture_output=True,

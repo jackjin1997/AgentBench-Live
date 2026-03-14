@@ -1,6 +1,23 @@
 {
-  "rankings": [],
-  "total_agents": 0,
-  "last_updated": "2026-03-14T00:00:00Z",
-  "note": "First benchmark results coming soon. Run: agentbench run --agent claude-code"
+  "rankings": [
+    {
+      "agent": "claude-code",
+      "avg_score": 1.0,
+      "pass_rate": 1.0,
+      "total_tasks": 2,
+      "runs": 1,
+      "domain_scores": [
+        {
+          "domain": "code",
+          "score": 1.0
+        },
+        {
+          "domain": "code",
+          "score": 1.0
+        }
+      ]
+    }
+  ],
+  "total_agents": 1,
+  "last_updated": "2026-03-14T14:55:26Z"
 }

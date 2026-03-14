@@ -1,0 +1,42 @@
+{
+  "agent": "claude-code",
+  "timestamp": "20260314-145526",
+  "trials": 3,
+  "scores": [
+    {
+      "task_id": "code-001",
+      "domain": "code",
+      "difficulty": "easy",
+      "title": "Fix off-by-one error in pagination",
+      "best_score": 1.0,
+      "pass_at_k": 1.0,
+      "trials": 3,
+      "avg_time_seconds": 19.9,
+      "trial_scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "task_id": "code-002",
+      "domain": "code",
+      "difficulty": "medium",
+      "title": "Add exponential backoff retry to HTTP client",
+      "best_score": 1.0,
+      "pass_at_k": 1.0,
+      "trials": 3,
+      "avg_time_seconds": 30.5,
+      "trial_scores": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 1.0,
+    "pass_rate": 1.0
+  }
+}
