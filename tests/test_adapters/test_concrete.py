@@ -22,7 +22,10 @@ class TestClaudeCodeAdapter:
     def test_build_command(self):
         adapter = ClaudeCodeAdapter()
         cmd = adapter._build_command("Fix the bug")
-        assert cmd == ["claude", "--print", "--dangerously-skip-permissions", "Fix the bug"]
+        assert cmd == ["claude", "--dangerously-skip-permissions"]
+
+    def test_prompt_via_stdin(self):
+        assert ClaudeCodeAdapter.prompt_via_stdin is True
 
 
 class TestOpenClawAdapter:
@@ -54,7 +57,10 @@ class TestGeminiCLIAdapter:
     def test_build_command(self):
         adapter = GeminiCLIAdapter()
         cmd = adapter._build_command("Write code")
-        assert cmd == ["gemini", "--non-interactive", "-p", "Write code"]
+        assert cmd == ["gemini"]
+
+    def test_prompt_via_stdin(self):
+        assert GeminiCLIAdapter.prompt_via_stdin is True
 
 
 class TestAiderAdapter:

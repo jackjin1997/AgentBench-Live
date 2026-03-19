@@ -40,6 +40,7 @@ class AgentAdapter(ABC):
     name: str = "base"
     cli_command: str = ""
     api_key_env_var: str = ""
+    prompt_via_stdin: bool = False  # If True, prompt is piped via stdin
 
     def run(
         self,
@@ -53,9 +54,12 @@ class AgentAdapter(ABC):
         cmd = self._build_command(prompt)
         env = self._build_env(workspace, network)
 
+        stdin_input = prompt if self.prompt_via_stdin else None
+
         try:
             result = subprocess.run(
                 cmd,
+                input=stdin_input,
                 capture_output=True,
                 text=True,
                 timeout=timeout_seconds,
