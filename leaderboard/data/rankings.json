@@ -1,9 +1,9 @@
 {
   "updated_at": "2026-03-19",
-  "benchmark_version": "0.2.0",
+  "benchmark_version": "0.2.1",
   "tasks_count": 10,
   "trials_per_task": 1,
-  "scoring_note": "Code tasks use auto-eval (pytest). Other domains scored by Gemini 2.5 Flash LLM Judge or heuristic fallback.",
+  "scoring_note": "Code tasks use auto-eval (pytest). Other domains scored by Gemini 2.5 Flash LLM Judge or heuristic fallback. Agents run in interactive mode with stdin prompts.",
   "agents": [
     {
       "rank": 1,
@@ -35,24 +35,24 @@
       "rank": 2,
       "name": "Gemini CLI",
       "slug": "gemini-cli",
-      "overall_score": 0.39,
-      "pass_rate": 0.2,
+      "overall_score": 0.52,
+      "pass_rate": 0.3,
       "domains": {
         "code": {"score": 1.0, "pass_rate": 1.0},
-        "data": {"score": 0.17, "pass_rate": 0.0},
-        "multi_step": {"score": 0.68, "pass_rate": 0.0},
-        "research": {"score": 0.05, "pass_rate": 0.0},
+        "data": {"score": 0.32, "pass_rate": 0.0},
+        "multi_step": {"score": 0.77, "pass_rate": 0.5},
+        "research": {"score": 0.45, "pass_rate": 0.0},
         "tool_use": {"score": 0.05, "pass_rate": 0.0}
       },
       "tasks": [
         {"task_id": "code-001", "score": 1.0, "passed": true},
         {"task_id": "code-002", "score": 1.0, "passed": true},
         {"task_id": "data-001", "score": 0.04, "passed": false},
-        {"task_id": "data-002", "score": 0.30, "passed": false},
-        {"task_id": "multi-001", "score": 0.64, "passed": false},
-        {"task_id": "multi-002", "score": 0.72, "passed": false},
-        {"task_id": "research-001", "score": 0.10, "passed": false},
-        {"task_id": "research-002", "score": 0.00, "passed": false},
+        {"task_id": "data-002", "score": 0.60, "passed": false},
+        {"task_id": "multi-001", "score": 0.70, "passed": false},
+        {"task_id": "multi-002", "score": 0.84, "passed": true},
+        {"task_id": "research-001", "score": 0.30, "passed": false},
+        {"task_id": "research-002", "score": 0.60, "passed": false},
         {"task_id": "tool-001", "score": 0.10, "passed": false},
         {"task_id": "tool-002", "score": 0.00, "passed": false}
       ]

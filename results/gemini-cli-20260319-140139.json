@@ -1,0 +1,43 @@
+{
+  "agent": "gemini-cli",
+  "timestamp": "20260319-140139",
+  "scores": [
+    {
+      "task_id": "multi-001",
+      "agent_name": "gemini-cli",
+      "score": 0.64,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "Completeness": 1.0,
+        "Code quality": 1.0,
+        "Changelog quality": 1.0,
+        "Process": 1.0,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": false,
+      "judge_narrative": "{'Completeness': 1.0, 'Code quality': 1.0, 'Changelog quality': 1.0, 'Process': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "multi-002",
+      "agent_name": "gemini-cli",
+      "score": 0.72,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "heuristic_score": 0.30000000000000004,
+        "judge_fallback": true,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": true,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.6799999999999999,
+    "pass_rate": 0.0
+  }
+}

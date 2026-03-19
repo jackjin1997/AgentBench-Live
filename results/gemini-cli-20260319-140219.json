@@ -1,0 +1,36 @@
+{
+  "agent": "gemini-cli",
+  "timestamp": "20260319-140219",
+  "scores": [
+    {
+      "task_id": "tool-001",
+      "agent_name": "gemini-cli",
+      "score": 0.1,
+      "details": {
+        "Tool proficiency": 1.0,
+        "Categorization accuracy": 1.0,
+        "Priority reasoning": 1.0,
+        "Report utility": 1.0
+      },
+      "auto_passed": null,
+      "judge_narrative": "{'Tool proficiency': 1.0, 'Categorization accuracy': 1.0, 'Priority reasoning': 1.0, 'Report utility': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-002",
+      "agent_name": "gemini-cli",
+      "score": 0.0,
+      "details": {
+        "auto_pass_rate": 0.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.05,
+    "pass_rate": 0.0
+  }
+}

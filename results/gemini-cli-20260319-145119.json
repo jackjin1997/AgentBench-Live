@@ -1,0 +1,142 @@
+{
+  "agent": "gemini-cli",
+  "timestamp": "20260319-145119",
+  "scores": [
+    {
+      "task_id": "code-001",
+      "agent_name": "gemini-cli",
+      "score": 1.0,
+      "details": {
+        "auto_pass_rate": 1.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "code-002",
+      "agent_name": "gemini-cli",
+      "score": 1.0,
+      "details": {
+        "auto_pass_rate": 1.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "data-001",
+      "agent_name": "gemini-cli",
+      "score": 0.04000000000000001,
+      "details": {
+        "auto_pass_rate": 0.0,
+        "Numerical accuracy": 1.0,
+        "Insight quality": 1.0,
+        "Clarity": 1.0,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": false,
+      "judge_narrative": "{'Numerical accuracy': 1.0, 'Insight quality': 1.0, 'Clarity': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "data-002",
+      "agent_name": "gemini-cli",
+      "score": 0.6,
+      "details": {
+        "heuristic_score": 0.6,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "multi-001",
+      "agent_name": "gemini-cli",
+      "score": 0.7,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "Completeness": 1.0,
+        "Code quality": 1.0,
+        "Changelog quality": 1.0,
+        "Process": 7.0,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": false,
+      "judge_narrative": "{'Completeness': 1.0, 'Code quality': 1.0, 'Changelog quality': 1.0, 'Process': 7.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "multi-002",
+      "agent_name": "gemini-cli",
+      "score": 0.84,
+      "details": {
+        "auto_pass_rate": 1.0,
+        "heuristic_score": 0.6,
+        "judge_fallback": true,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": true,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 1.0
+    },
+    {
+      "task_id": "research-001",
+      "agent_name": "gemini-cli",
+      "score": 0.30000000000000004,
+      "details": {
+        "heuristic_score": 0.30000000000000004,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "research-002",
+      "agent_name": "gemini-cli",
+      "score": 0.6,
+      "details": {
+        "heuristic_score": 0.6,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-001",
+      "agent_name": "gemini-cli",
+      "score": 0.1,
+      "details": {
+        "Tool proficiency": 1.0,
+        "Categorization accuracy": 1.0,
+        "Priority reasoning": 1.0,
+        "Report utility": 1.0
+      },
+      "auto_passed": null,
+      "judge_narrative": "{'Tool proficiency': 1.0, 'Categorization accuracy': 1.0, 'Priority reasoning': 1.0, 'Report utility': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "tool-002",
+      "agent_name": "gemini-cli",
+      "score": 0.0,
+      "details": {
+        "auto_pass_rate": 0.0
+      },
+      "auto_passed": false,
+      "judge_narrative": "",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 10,
+    "avg_score": 0.5179999999999999,
+    "pass_rate": 0.3
+  }
+}

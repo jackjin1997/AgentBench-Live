@@ -1,0 +1,35 @@
+{
+  "agent": "claude-code",
+  "timestamp": "20260319-141707",
+  "scores": [
+    {
+      "task_id": "research-001",
+      "agent_name": "claude-code",
+      "score": 0.6,
+      "details": {
+        "heuristic_score": 0.6,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "research-002",
+      "agent_name": "claude-code",
+      "score": 0.6,
+      "details": {
+        "heuristic_score": 0.6,
+        "judge_fallback": true
+      },
+      "auto_passed": null,
+      "judge_narrative": "Heuristic fallback (LLM judge unavailable)",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.6,
+    "pass_rate": 0.0
+  }
+}

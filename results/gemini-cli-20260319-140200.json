@@ -1,0 +1,39 @@
+{
+  "agent": "gemini-cli",
+  "timestamp": "20260319-140200",
+  "scores": [
+    {
+      "task_id": "research-001",
+      "agent_name": "gemini-cli",
+      "score": 0.1,
+      "details": {
+        "Accuracy": 1.0,
+        "Completeness": 1.0,
+        "Structure": 1.0,
+        "Reasoning": 1.0
+      },
+      "auto_passed": null,
+      "judge_narrative": "{'Accuracy': 1.0, 'Completeness': 1.0, 'Structure': 1.0, 'Reasoning': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "research-002",
+      "agent_name": "gemini-cli",
+      "score": 0.0,
+      "details": {
+        "Coverage": 0.0,
+        "Accuracy": 0.0,
+        "Actionability": 0.0,
+        "Professionalism": 0.0
+      },
+      "auto_passed": null,
+      "judge_narrative": "{'Coverage': 0.0, 'Accuracy': 0.0, 'Actionability': 0.0, 'Professionalism': 0.0}",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.05,
+    "pass_rate": 0.0
+  }
+}

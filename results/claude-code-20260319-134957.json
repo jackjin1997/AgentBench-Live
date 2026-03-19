@@ -1,0 +1,41 @@
+{
+  "agent": "claude-code",
+  "timestamp": "20260319-134957",
+  "scores": [
+    {
+      "task_id": "data-001",
+      "agent_name": "claude-code",
+      "score": 0.04000000000000001,
+      "details": {
+        "auto_pass_rate": 0.0,
+        "Numerical accuracy": 1.0,
+        "Insight quality": 1.0,
+        "Clarity": 1.0,
+        "auto_weight": 0.6,
+        "judge_weight": 0.4
+      },
+      "auto_passed": false,
+      "judge_narrative": "{'Numerical accuracy': 1.0, 'Insight quality': 1.0, 'Clarity': 1.0}",
+      "pass_at_k": 0.0
+    },
+    {
+      "task_id": "data-002",
+      "agent_name": "claude-code",
+      "score": 0.1,
+      "details": {
+        "Detection accuracy": 1.0,
+        "False positive rate": 1.0,
+        "Root cause analysis": 1.0,
+        "Report quality": 1.0
+      },
+      "auto_passed": null,
+      "judge_narrative": "{'Detection accuracy': 1.0, 'False positive rate': 1.0, 'Root cause analysis': 1.0, 'Report quality': 1.0}",
+      "pass_at_k": 0.0
+    }
+  ],
+  "summary": {
+    "total_tasks": 2,
+    "avg_score": 0.07,
+    "pass_rate": 0.0
+  }
+}
