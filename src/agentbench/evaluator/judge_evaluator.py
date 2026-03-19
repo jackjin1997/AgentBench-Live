@@ -240,7 +240,7 @@ Be strict but fair. A score of 7 means "good", 9 means "excellent", 5 means "med
 
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-2.0-flash")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(
                 prompt + "\n\nRespond with ONLY a JSON object, no other text.",
                 generation_config=genai.types.GenerationConfig(
