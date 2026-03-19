@@ -28,6 +28,7 @@ def main():
 @click.option("--tasks-dir", default="tasks", help="Tasks directory path")
 def run(agent: str, domain: str, difficulty: str, trials: Optional[int], output: str, tasks_dir: str):
     """Run benchmark tasks against an agent."""
+    import agentbench.adapters.aider  # noqa: F401
     import agentbench.adapters.claude_code  # noqa: F401
     import agentbench.adapters.codex_cli  # noqa: F401
     import agentbench.adapters.gemini_cli  # noqa: F401
@@ -102,6 +103,7 @@ def tasks(tasks_dir: str, domain: str):
 @main.command()
 def agents():
     """List available agent adapters."""
+    import agentbench.adapters.aider  # noqa: F401
     import agentbench.adapters.claude_code  # noqa: F401
     import agentbench.adapters.codex_cli  # noqa: F401
     import agentbench.adapters.gemini_cli  # noqa: F401
@@ -136,6 +138,19 @@ def export_dataset(results_file: str, name: str):
     from agentbench.langsmith_dataset import export_dataset as _export
 
     _export(Path(results_file), dataset_name=name)
+
+
+@main.command("social-card")
+@click.option("--results", default="leaderboard/data/rankings.json", help="Path to results JSON")
+@click.option("--output", default="social-card.png", help="Output PNG file path")
+@click.option("--agents", default=None, help="Comma-separated agent slugs to include")
+def social_card(results: str, output: str, agents: Optional[str]):
+    """Generate a shareable social card image with agent comparisons."""
+    from agentbench.social_card import generate_social_card
+
+    agent_list = [a.strip() for a in agents.split(",")] if agents else None
+    out = generate_social_card(results, output, agents=agent_list)
+    console.print(f"[green]Social card saved to {out}[/green]")
 
 
 if __name__ == "__main__":

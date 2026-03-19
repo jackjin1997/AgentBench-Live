@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgentBench-Live — Real-Time Agent Leaderboard</title>
-  <meta name="description" content="The real-time leaderboard for AI agent task execution. We test how well agents get things done.">
+  <meta name="description" content="Who's the best AI coding agent? We tested agents on real-world tasks. No vibes. Just results.">
+  <meta property="og:title" content="AgentBench-Live — Real-Time Agent Leaderboard">
+  <meta property="og:description" content="We tested AI coding agents on 10 real-world tasks. No vibes. Just results.">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #0d1117;
@@ -32,30 +35,86 @@
 
     .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .animate-in {
+      animation: fadeInUp 0.6s ease forwards;
+      opacity: 0;
+    }
+
+    .animate-in-delay-1 { animation-delay: 0.1s; }
+    .animate-in-delay-2 { animation-delay: 0.2s; }
+    .animate-in-delay-3 { animation-delay: 0.35s; }
+    .animate-in-delay-4 { animation-delay: 0.5s; }
+    .animate-in-delay-5 { animation-delay: 0.65s; }
+
     /* Hero */
     header {
       text-align: center;
-      padding: 48px 0 32px;
-      border-bottom: 1px solid var(--border);
+      padding: 64px 0 48px;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 0.8em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      background: rgba(88, 166, 255, 0.1);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 20px;
     }
 
     header h1 {
-      font-size: 2.4em;
+      font-size: 3em;
       font-weight: 800;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 50%, #3fb950 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    header h1 span { color: var(--accent); }
-
-    header p {
+    header .subtitle {
       color: var(--muted);
-      font-size: 1.1em;
-      max-width: 600px;
+      font-size: 1.2em;
+      max-width: 560px;
       margin: 0 auto;
+      line-height: 1.6;
     }
 
     .hero-actions {
-      margin-top: 20px;
+      margin-top: 28px;
       display: flex;
       gap: 12px;
       justify-content: center;
@@ -63,38 +122,61 @@
     }
 
     .cta-btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       background: var(--accent);
       color: var(--bg);
-      padding: 10px 24px;
-      border-radius: 6px;
+      padding: 12px 28px;
+      border-radius: 8px;
       text-decoration: none;
       font-weight: 600;
-      transition: opacity 0.2s;
+      transition: all 0.2s ease;
       border: none;
       cursor: pointer;
       font-size: 1em;
     }
 
-    .cta-btn:hover { opacity: 0.85; }
+    .cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(88, 166, 255, 0.3);
+    }
 
     .cta-btn.secondary {
       background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
 
     .cta-btn.secondary:hover {
-      background: rgba(88, 166, 255, 0.1);
-      opacity: 1;
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(88, 166, 255, 0.05);
+      box-shadow: none;
+      transform: translateY(-1px);
+    }
+
+    .cta-btn.green {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .cta-btn.green:hover {
+      box-shadow: 0 4px 16px rgba(63, 185, 80, 0.3);
+    }
+
+    .cta-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
     }
 
     /* Stats bar */
     .stats-bar {
       display: flex;
       justify-content: center;
-      gap: 32px;
-      padding: 20px 0;
+      gap: 40px;
+      padding: 28px 0;
       margin: 24px 0;
       flex-wrap: wrap;
     }
@@ -102,38 +184,203 @@
     .stat { text-align: center; }
 
     .stat-value {
-      font-size: 2em;
+      font-size: 2.2em;
       font-weight: 700;
       color: var(--accent);
     }
 
     .stat-label {
-      font-size: 0.85em;
+      font-size: 0.8em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Rank cards */
+    .rank-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+
+    .rank-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .rank-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .rank-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .rank-card.gold::before { background: linear-gradient(90deg, #ffd700, #ffed4a); }
+    .rank-card.silver::before { background: linear-gradient(90deg, #c0c0c0, #e0e0e0); }
+    .rank-card.bronze::before { background: linear-gradient(90deg, #cd7f32, #e8a54d); }
+    .rank-card.other::before { background: linear-gradient(90deg, var(--accent), var(--accent)); }
+
+    .rank-card .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1em;
+      margin-bottom: 12px;
+    }
+
+    .rank-card.gold .rank-badge {
+      background: rgba(255, 215, 0, 0.15);
+      color: var(--gold);
+      border: 2px solid rgba(255, 215, 0, 0.3);
+    }
+
+    .rank-card.silver .rank-badge {
+      background: rgba(192, 192, 192, 0.15);
+      color: var(--silver);
+      border: 2px solid rgba(192, 192, 192, 0.3);
+    }
+
+    .rank-card.bronze .rank-badge {
+      background: rgba(205, 127, 50, 0.15);
+      color: var(--bronze);
+      border: 2px solid rgba(205, 127, 50, 0.3);
+    }
+
+    .rank-card.other .rank-badge {
+      background: rgba(88, 166, 255, 0.1);
+      color: var(--accent);
+      border: 2px solid rgba(88, 166, 255, 0.2);
+    }
+
+    .rank-card .agent-card-name {
+      font-size: 1.15em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .rank-card .agent-card-score {
+      font-size: 2em;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .rank-card.gold .agent-card-score { color: var(--gold); }
+    .rank-card.silver .agent-card-score { color: var(--silver); }
+    .rank-card.bronze .agent-card-score { color: var(--bronze); }
+    .rank-card.other .agent-card-score { color: var(--accent); }
+
+    .rank-card .agent-card-label {
+      font-size: 0.8em;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
+    /* Radar chart section */
+    .chart-section {
+      margin: 48px 0;
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-subtitle {
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .chart-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Domain filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .filter-tab:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .filter-tab.active {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
     /* Table */
-    .table-wrap { overflow-x: auto; }
+    .table-section {
+      margin: 48px 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+    }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 24px 0;
     }
 
     thead th {
       text-align: left;
-      padding: 12px 14px;
-      border-bottom: 2px solid var(--border);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.8em;
+      font-size: 0.78em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
+      background: rgba(22, 27, 34, 0.8);
     }
 
     thead th:hover { color: var(--accent); }
@@ -145,17 +392,18 @@
       transition: background 0.15s;
     }
 
-    tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(88, 166, 255, 0.04); }
 
     td {
-      padding: 12px 14px;
+      padding: 14px 16px;
       vertical-align: middle;
       white-space: nowrap;
     }
 
     .rank {
       font-weight: 700;
-      font-size: 1.1em;
+      font-size: 1.05em;
       width: 50px;
     }
 
@@ -169,10 +417,10 @@
     }
 
     .score-bar-container {
-      width: 100px;
-      height: 8px;
-      background: var(--border);
-      border-radius: 4px;
+      width: 80px;
+      height: 6px;
+      background: rgba(48, 54, 61, 0.8);
+      border-radius: 3px;
       overflow: hidden;
       display: inline-block;
       vertical-align: middle;
@@ -181,8 +429,8 @@
 
     .score-bar {
       height: 100%;
-      border-radius: 4px;
-      transition: width 0.5s ease;
+      border-radius: 3px;
+      transition: width 0.8s ease;
     }
 
     .score-high { background: var(--green); }
@@ -204,11 +452,12 @@
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 3px 10px;
-      border-radius: 4px;
+      padding: 4px 12px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 0.8em;
       transition: all 0.2s;
+      font-family: inherit;
     }
 
     .expand-btn:hover {
@@ -218,35 +467,55 @@
 
     .task-breakdown {
       display: none;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
+      background: var(--bg);
     }
 
     .task-breakdown.open { display: table-row; }
 
     .task-breakdown td {
-      padding: 16px 14px;
+      padding: 16px;
     }
 
     .task-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 8px;
     }
 
     .task-card {
-      background: var(--bg);
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 8px;
+      padding: 12px 14px;
       font-size: 0.85em;
+      transition: border-color 0.2s;
     }
+
+    .task-card:hover {
+      border-color: rgba(88, 166, 255, 0.3);
+    }
+
+    .task-card.hidden-by-filter { display: none; }
 
     .task-card-id {
       color: var(--muted);
-      font-size: 0.8em;
+      font-size: 0.78em;
       margin-bottom: 4px;
       font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+
+    .task-card-domain {
+      display: inline-block;
+      font-size: 0.65em;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: rgba(88, 166, 255, 0.1);
+      color: var(--accent);
+      margin-left: 4px;
+      vertical-align: middle;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.03em;
     }
 
     .task-card-score {
@@ -271,14 +540,14 @@
     .methodology {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 24px;
-      margin: 40px 0;
+      border-radius: 12px;
+      padding: 32px;
+      margin: 48px 0;
     }
 
     .methodology h2 {
-      margin-bottom: 16px;
-      font-size: 1.2em;
+      margin-bottom: 20px;
+      font-size: 1.3em;
     }
 
     .methodology ul {
@@ -287,8 +556,9 @@
     }
 
     .methodology li {
-      padding: 4px 0;
+      padding: 6px 0;
       color: var(--muted);
+      line-height: 1.6;
     }
 
     .methodology li::before {
@@ -296,10 +566,23 @@
       color: var(--accent);
     }
 
+    .methodology-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95em;
+    }
+
+    .methodology-link:hover {
+      text-decoration: underline;
+    }
+
     /* Footer */
     footer {
       text-align: center;
-      padding: 40px 0;
+      padding: 48px 0;
       color: var(--muted);
       font-size: 0.9em;
       border-top: 1px solid var(--border);
@@ -308,11 +591,27 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    .footer-tagline {
+      font-style: italic;
+      margin-bottom: 16px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .updated-at {
       text-align: center;
       color: var(--muted);
       font-size: 0.85em;
-      margin-top: 8px;
+      margin-top: 12px;
     }
 
     /* Empty state */
@@ -326,34 +625,49 @@
 
     /* Responsive */
     @media (max-width: 768px) {
-      header h1 { font-size: 1.6em; }
-      .stats-bar { gap: 16px; }
-      .stat-value { font-size: 1.4em; }
+      header { padding: 48px 0 36px; }
+      header h1 { font-size: 2em; }
+      header .subtitle { font-size: 1em; }
+      .stats-bar { gap: 20px; }
+      .stat-value { font-size: 1.6em; }
       .score-bar-container { width: 50px; }
-      td, th { padding: 10px 8px; font-size: 0.85em; }
-      .task-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-      .container { padding: 0 12px; }
+      td, th { padding: 10px 10px; font-size: 0.85em; }
+      .task-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .container { padding: 0 14px; }
+      .chart-container { padding: 20px; }
+      .rank-cards { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 480px) {
+      header h1 { font-size: 1.6em; }
       .domain-cell { display: none; }
-      header h1 { font-size: 1.3em; }
       .hero-actions { flex-direction: column; align-items: center; }
+      .rank-cards { grid-template-columns: 1fr; }
+      .filter-tabs { justify-content: center; }
+      .stats-bar { gap: 16px; }
+      .chart-container { padding: 16px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Hero -->
     <header>
-      <h1><span>AgentBench</span>-Live</h1>
-      <p>The real-time leaderboard for AI agent task execution. We don't test how well agents chat &mdash; we test how well they <strong>get things done</strong>.</p>
-      <div class="hero-actions">
-        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" class="cta-btn">Add Your Agent</a>
-        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn secondary">View on GitHub</a>
+      <div class="hero-label animate-in">AgentBench-Live</div>
+      <h1 class="animate-in animate-in-delay-1">Who's the best AI coding agent?</h1>
+      <p class="subtitle animate-in animate-in-delay-2">We tested 4 agents on 10 real-world tasks. No vibes. Just results.</p>
+      <div class="hero-actions animate-in animate-in-delay-3">
+        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn">
+          <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Star on GitHub
+        </a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" class="cta-btn green">Add Your Agent</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/methodology.md" class="cta-btn secondary">Methodology</a>
       </div>
     </header>
 
-    <div class="stats-bar" id="stats-bar">
+    <!-- Stats -->
+    <div class="stats-bar animate-in animate-in-delay-3" id="stats-bar">
       <div class="stat">
         <div class="stat-value" id="stat-agents">&mdash;</div>
         <div class="stat-label">Agents Tested</div>
@@ -372,65 +686,110 @@
       </div>
     </div>
 
+    <!-- Rank Cards -->
+    <div class="rank-cards animate-in animate-in-delay-3" id="rank-cards"></div>
+
+    <!-- Radar Chart -->
+    <div class="chart-section animate-in animate-in-delay-4" id="chart-section" style="display: none;">
+      <h2 class="section-title">Domain Comparison</h2>
+      <p class="section-subtitle">How each agent performs across the 5 evaluation domains.</p>
+      <div class="chart-container">
+        <canvas id="radar-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Leaderboard Table -->
     <div id="leaderboard-container">
       <div class="empty-state" id="empty-state">
         <h2>First benchmark coming soon</h2>
         <p>We're running the initial benchmark against Claude Code, Gemini CLI, and more.</p>
         <p style="margin-top: 8px;">Results will appear here automatically.</p>
-        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn">Star on GitHub</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn" style="margin-top: 16px;">Star on GitHub</a>
       </div>
 
-      <div class="table-wrap">
-        <table id="leaderboard-table" style="display: none;">
-          <thead>
-            <tr>
-              <th data-sort="rank" data-type="num">Rank</th>
-              <th data-sort="name" data-type="str">Agent</th>
-              <th data-sort="overall_score" data-type="num" class="sort-desc">Overall Score</th>
-              <th data-sort="pass_rate" data-type="num">Pass Rate</th>
-              <th class="domain-cell">Code</th>
-              <th class="domain-cell">Data</th>
-              <th class="domain-cell">Multi-step</th>
-              <th class="domain-cell">Research</th>
-              <th class="domain-cell">Tool Use</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard-body"></tbody>
-        </table>
+      <div class="table-section animate-in animate-in-delay-4" id="table-section" style="display: none;">
+        <h2 class="section-title">Full Results</h2>
+        <p class="section-subtitle">Click column headers to sort. Expand rows to see per-task breakdown.</p>
+
+        <!-- Domain filter tabs -->
+        <div class="filter-tabs" id="filter-tabs">
+          <button class="filter-tab active" data-domain="all">All</button>
+          <button class="filter-tab" data-domain="code">Code</button>
+          <button class="filter-tab" data-domain="data">Data</button>
+          <button class="filter-tab" data-domain="multi_step">Multi-step</button>
+          <button class="filter-tab" data-domain="research">Research</button>
+          <button class="filter-tab" data-domain="tool_use">Tool Use</button>
+        </div>
+
+        <div class="table-wrap">
+          <table id="leaderboard-table">
+            <thead>
+              <tr>
+                <th data-sort="rank" data-type="num">Rank</th>
+                <th data-sort="name" data-type="str">Agent</th>
+                <th data-sort="overall_score" data-type="num" class="sort-desc">Overall Score</th>
+                <th data-sort="pass_rate" data-type="num">Pass Rate</th>
+                <th class="domain-cell" data-sort="domain_code" data-type="num">Code</th>
+                <th class="domain-cell" data-sort="domain_data" data-type="num">Data</th>
+                <th class="domain-cell" data-sort="domain_multi_step" data-type="num">Multi-step</th>
+                <th class="domain-cell" data-sort="domain_research" data-type="num">Research</th>
+                <th class="domain-cell" data-sort="domain_tool_use" data-type="num">Tool Use</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body"></tbody>
+          </table>
+        </div>
+        <div class="updated-at" id="updated-at"></div>
       </div>
-      <div class="updated-at" id="updated-at"></div>
     </div>
 
-    <div class="methodology">
+    <!-- Methodology -->
+    <div class="methodology animate-in animate-in-delay-5">
       <h2>Methodology</h2>
       <ul>
         <li><strong>5 domains</strong>: Code, Research, Data Analysis, Tool Use, Multi-step Workflows</li>
         <li><strong>10 benchmark tasks</strong> with Easy / Medium / Hard difficulty levels</li>
         <li><strong>pass@k reliability</strong>: Each task run multiple times &mdash; we report consistency, not best-of</li>
-        <li><strong>Sandboxed execution</strong>: Every task runs in an isolated environment</li>
+        <li><strong>Sandboxed execution</strong>: Every task runs in an isolated Docker environment</li>
         <li><strong>Dual scoring</strong>: Automated tests + LLM-as-Judge for subjective tasks</li>
-        <li><strong>CLI agents first</strong>: Claude Code, Gemini CLI, Codex CLI, and more</li>
+        <li><strong>CLI agents first</strong>: Claude Code, Gemini CLI, Codex CLI, Aider, and more</li>
         <li><strong>Fully reproducible</strong>: <code>pip install agentbench-live && agentbench run --agent &lt;name&gt;</code></li>
       </ul>
+      <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/methodology.md" class="methodology-link">Read full methodology &rarr;</a>
     </div>
 
+    <!-- Footer -->
     <footer>
-      <p>
-        <a href="https://github.com/jackjin1997/AgentBench-Live">GitHub</a> &middot;
-        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md">Submit Tasks</a> &middot;
-        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent">Add Your Agent</a> &middot;
-        MIT License
-      </p>
-      <p style="margin-top: 8px;">Built with the belief that the best way to improve agents is to measure them honestly.</p>
+      <p class="footer-tagline">"Built with the belief that the best way to improve agents is to measure them honestly."</p>
+      <div class="footer-links">
+        <a href="https://github.com/jackjin1997/AgentBench-Live">GitHub</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/methodology.md">Methodology</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/CONTRIBUTING.md">Contributing</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md">Submit Tasks</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent">Add Your Agent</a>
+      </div>
+      <p style="margin-top: 16px;">MIT License</p>
     </footer>
   </div>
 
   <script>
     const DATA_URL = './data/rankings.json';
     const DOMAIN_KEYS = ['code', 'data', 'multi_step', 'research', 'tool_use'];
+    const DOMAIN_LABELS = { code: 'Code', data: 'Data', multi_step: 'Multi-step', research: 'Research', tool_use: 'Tool Use' };
+    const AGENT_COLORS = [
+      { bg: 'rgba(88, 166, 255, 0.2)', border: '#58a6ff' },
+      { bg: 'rgba(63, 185, 80, 0.2)', border: '#3fb950' },
+      { bg: 'rgba(210, 153, 34, 0.2)', border: '#d29922' },
+      { bg: 'rgba(248, 81, 73, 0.2)', border: '#f85149' },
+      { bg: 'rgba(188, 140, 255, 0.2)', border: '#bc8cff' },
+      { bg: 'rgba(255, 166, 87, 0.2)', border: '#ffa657' },
+    ];
+
     let agentsData = [];
     let sortState = { col: 'overall_score', dir: 'desc' };
+    let activeDomainFilter = 'all';
+    let radarChart = null;
 
     async function loadLeaderboard() {
       try {
@@ -441,7 +800,14 @@
 
         agentsData = data.agents;
 
-        // Populate stats
+        // Add flattened domain scores for sorting
+        agentsData.forEach(function(a) {
+          DOMAIN_KEYS.forEach(function(d) {
+            a['domain_' + d] = (a.domains && a.domains[d]) ? a.domains[d].score : 0;
+          });
+        });
+
+        // Stats
         document.getElementById('stat-agents').textContent = data.agents.length;
         document.getElementById('stat-tasks').textContent = data.tasks_count || '10';
         document.getElementById('stat-domains').textContent = DOMAIN_KEYS.length;
@@ -452,15 +818,49 @@
           document.getElementById('updated-at').textContent = 'Last updated: ' + data.updated_at;
         }
 
-        // Show table, hide empty state
+        // Show content, hide empty state
         document.getElementById('empty-state').style.display = 'none';
-        document.getElementById('leaderboard-table').style.display = 'table';
+        document.getElementById('table-section').style.display = 'block';
+        document.getElementById('chart-section').style.display = 'block';
 
+        renderRankCards();
         renderTable();
+        renderRadarChart();
       } catch (e) {
-        // Data not available yet -- show empty state
         console.error('Failed to load rankings:', e);
       }
+    }
+
+    function getRankStyle(rank) {
+      if (rank === 1) return 'gold';
+      if (rank === 2) return 'silver';
+      if (rank === 3) return 'bronze';
+      return 'other';
+    }
+
+    function renderRankCards() {
+      var sorted = getSortedAgents();
+      var container = document.getElementById('rank-cards');
+      container.innerHTML = '';
+
+      sorted.forEach(function(agent, i) {
+        var rank = i + 1;
+        var style = getRankStyle(rank);
+        var card = document.createElement('div');
+        card.className = 'rank-card ' + style;
+        card.innerHTML =
+          '<div class="rank-badge">#' + rank + '</div>' +
+          '<div class="agent-card-name">' + escHtml(agent.name) + '</div>' +
+          '<div class="agent-card-score">' + pct(agent.overall_score) + '</div>' +
+          '<div class="agent-card-label">Overall Score</div>';
+        container.appendChild(card);
+      });
+    }
+
+    function getSortedAgents() {
+      return [...agentsData].sort(function(a, b) {
+        return b.overall_score - a.overall_score;
+      });
     }
 
     function scoreClass(v) {
@@ -475,31 +875,41 @@
       return (v * 100).toFixed(1) + '%';
     }
 
+    function getTaskDomain(taskId) {
+      if (taskId.startsWith('code-')) return 'code';
+      if (taskId.startsWith('data-')) return 'data';
+      if (taskId.startsWith('multi-')) return 'multi_step';
+      if (taskId.startsWith('research-')) return 'research';
+      if (taskId.startsWith('tool-')) return 'tool_use';
+      return 'unknown';
+    }
+
     function renderTable() {
       // Sort
-      const sorted = [...agentsData].sort((a, b) => {
-        let va, vb;
+      var sorted = [...agentsData].sort(function(a, b) {
+        var va, vb;
         if (sortState.col === 'name') {
           va = a.name.toLowerCase();
           vb = b.name.toLowerCase();
           return sortState.dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
         }
-        va = a[sortState.col] ?? 0;
-        vb = b[sortState.col] ?? 0;
+        va = a[sortState.col] || 0;
+        vb = b[sortState.col] || 0;
         return sortState.dir === 'asc' ? va - vb : vb - va;
       });
 
-      const tbody = document.getElementById('leaderboard-body');
+      var tbody = document.getElementById('leaderboard-body');
       tbody.innerHTML = '';
+      var colSpan = document.querySelectorAll('#leaderboard-table thead th').length;
 
-      sorted.forEach((agent, i) => {
-        const rank = i + 1;
-        const rankCls = rank <= 3 ? 'rank-' + rank : '';
-        const sc = agent.overall_score;
-        const pr = agent.pass_rate;
+      sorted.forEach(function(agent, i) {
+        var rank = i + 1;
+        var rankCls = rank <= 3 ? 'rank-' + rank : '';
+        var sc = agent.overall_score;
+        var pr = agent.pass_rate;
 
         // Main row
-        const row = document.createElement('tr');
+        var row = document.createElement('tr');
         row.innerHTML =
           '<td class="rank ' + rankCls + '">#' + rank + '</td>' +
           '<td class="agent-name">' + escHtml(agent.name) + '</td>' +
@@ -517,7 +927,7 @@
           '<td><button class="expand-btn" data-slug="' + agent.slug + '">Tasks</button></td>';
         tbody.appendChild(row);
 
-        // Breakdown row (hidden by default)
+        // Breakdown row
         var brow = document.createElement('tr');
         brow.className = 'task-breakdown';
         brow.id = 'breakdown-' + agent.slug;
@@ -525,13 +935,17 @@
         var taskCards = tasks.map(function(t) {
           var badgeCls = t.passed ? 'badge-pass' : 'badge-fail';
           var badgeTxt = t.passed ? 'PASS' : 'FAIL';
-          return '<div class="task-card">' +
-            '<div class="task-card-id">' + escHtml(t.task_id) + '</div>' +
+          var domain = getTaskDomain(t.task_id);
+          var filterHidden = (activeDomainFilter !== 'all' && domain !== activeDomainFilter) ? ' hidden-by-filter' : '';
+          return '<div class="task-card' + filterHidden + '" data-domain="' + domain + '">' +
+            '<div class="task-card-id">' + escHtml(t.task_id) +
+              '<span class="task-card-domain">' + (DOMAIN_LABELS[domain] || domain) + '</span>' +
+            '</div>' +
             '<span class="task-card-score ' + passClass(t.score) + '">' + pct(t.score) + '</span>' +
             '<span class="task-badge ' + badgeCls + '">' + badgeTxt + '</span>' +
           '</div>';
         }).join('');
-        brow.innerHTML = '<td colspan="10"><div class="task-grid">' + taskCards + '</div></td>';
+        brow.innerHTML = '<td colspan="' + colSpan + '"><div class="task-grid">' + taskCards + '</div></td>';
         tbody.appendChild(brow);
       });
 
@@ -545,6 +959,81 @@
             this.textContent = row.classList.contains('open') ? 'Hide' : 'Tasks';
           }
         });
+      });
+    }
+
+    function renderRadarChart() {
+      var sorted = getSortedAgents();
+      var labels = DOMAIN_KEYS.map(function(d) { return DOMAIN_LABELS[d]; });
+
+      var datasets = sorted.map(function(agent, i) {
+        var colorIdx = i % AGENT_COLORS.length;
+        return {
+          label: agent.name,
+          data: DOMAIN_KEYS.map(function(d) {
+            return agent.domains && agent.domains[d] ? +(agent.domains[d].score * 100).toFixed(1) : 0;
+          }),
+          fill: true,
+          backgroundColor: AGENT_COLORS[colorIdx].bg,
+          borderColor: AGENT_COLORS[colorIdx].border,
+          borderWidth: 2,
+          pointBackgroundColor: AGENT_COLORS[colorIdx].border,
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        };
+      });
+
+      var ctx = document.getElementById('radar-chart').getContext('2d');
+      if (radarChart) radarChart.destroy();
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: { labels: labels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                stepSize: 20,
+                color: '#8b949e',
+                backdropColor: 'transparent',
+                font: { size: 11 },
+              },
+              grid: { color: 'rgba(48, 54, 61, 0.6)' },
+              angleLines: { color: 'rgba(48, 54, 61, 0.6)' },
+              pointLabels: {
+                color: '#e6edf3',
+                font: { size: 13, weight: '600' },
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: '#e6edf3',
+                padding: 20,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: { size: 13 },
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: function(ctx) {
+                  return ctx.dataset.label + ': ' + ctx.raw + '%';
+                }
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+          },
+        },
       });
     }
 
@@ -569,6 +1058,27 @@
         });
         this.classList.add('sort-' + sortState.dir);
         renderTable();
+      });
+    });
+
+    // Domain filter tabs
+    document.querySelectorAll('.filter-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(function(t) {
+          t.classList.remove('active');
+        });
+        this.classList.add('active');
+        activeDomainFilter = this.getAttribute('data-domain');
+
+        // Update visible task cards in any open breakdowns
+        document.querySelectorAll('.task-card').forEach(function(card) {
+          var cardDomain = card.getAttribute('data-domain');
+          if (activeDomainFilter === 'all' || cardDomain === activeDomainFilter) {
+            card.classList.remove('hidden-by-filter');
+          } else {
+            card.classList.add('hidden-by-filter');
+          }
+        });
       });
     });
 

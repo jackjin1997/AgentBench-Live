@@ -8,6 +8,7 @@ import platform
 import shutil
 import subprocess
 import tempfile
+import uuid
 from pathlib import Path
 
 from agentbench.schema import Task
@@ -32,7 +33,9 @@ _NETWORK_ENV_PASSTHROUGH = [
 class Sandbox:
     """Manages an isolated workspace for task execution.
 
-    For MVP, uses local temporary directories with subprocess isolation.
+    Uses Docker mount mode when Docker is available to ensure a clean,
+    reproducible environment. Falls back to local temporary directories
+    when Docker is not available.
     """
 
     def __init__(self, task: Task, install_timeout: int = 120):
@@ -40,8 +43,143 @@ class Sandbox:
         self._workspace: Path | None = None
         self._install_timeout = install_timeout
 
+    @staticmethod
+    def _docker_available() -> bool:
+        """Check if Docker is installed and running."""
+        try:
+            result = subprocess.run(
+                ["docker", "info"],
+                capture_output=True,
+                timeout=10,
+            )
+            return result.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+            return False
+
     def setup(self) -> Path:
-        """Create and populate the sandbox workspace."""
+        """Create and populate the sandbox workspace.
+
+        If Docker is available, uses Docker mount mode to build the workspace
+        in a container and then copies the result to a local tempdir.
+        Otherwise, falls back to local-only mode.
+        """
+        if self._docker_available():
+            try:
+                return self._setup_docker()
+            except Exception:
+                logger.warning(
+                    "Docker setup failed, falling back to local mode",
+                    exc_info=True,
+                )
+        else:
+            logger.warning(
+                "Docker not available, using local tempdir mode. "
+                "Install Docker for reproducible sandboxed execution."
+            )
+
+        return self._setup_local()
+
+    # ------------------------------------------------------------------
+    # Docker mount mode
+    # ------------------------------------------------------------------
+
+    def _setup_docker(self) -> Path:
+        """Set up workspace via Docker container."""
+        base_image = self.task.setup.base_image
+        container_name = f"agentbench-{self.task.id}-{uuid.uuid4().hex[:8]}"
+
+        try:
+            # 1. Create a container (not started) from the base image
+            subprocess.run(
+                [
+                    "docker", "create",
+                    "--name", container_name,
+                    "-w", "/workspace",
+                    base_image,
+                    "sleep", "infinity",
+                ],
+                capture_output=True,
+                check=True,
+                timeout=60,
+            )
+            logger.info(
+                "Created Docker container %s from %s",
+                container_name,
+                base_image,
+            )
+
+            # 2. Copy fixture files into the container at /workspace
+            for file_mapping in self.task.setup.files:
+                src = Path("tasks") / file_mapping["src"]
+                raw_dst = file_mapping.get("dst", "").strip("/")
+                if raw_dst == "workspace" or raw_dst == "":
+                    container_dst = "/workspace"
+                else:
+                    container_dst = f"/workspace/{raw_dst}"
+
+                if src.exists():
+                    subprocess.run(
+                        ["docker", "cp", str(src), f"{container_name}:{container_dst}"],
+                        capture_output=True,
+                        check=True,
+                        timeout=60,
+                    )
+
+            # 3. Run install commands inside the container
+            if self.task.setup.install:
+                # Start the container so we can exec into it
+                subprocess.run(
+                    ["docker", "start", container_name],
+                    capture_output=True,
+                    check=True,
+                    timeout=30,
+                )
+
+                subprocess.run(
+                    [
+                        "docker", "exec", container_name,
+                        "sh", "-c", self.task.setup.install,
+                    ],
+                    capture_output=True,
+                    check=True,
+                    timeout=self._install_timeout,
+                )
+                logger.info("Install commands completed in container")
+
+            # 4. Copy /workspace from container to local tempdir
+            self._workspace = Path(
+                tempfile.mkdtemp(prefix=f"agentbench-{self.task.id}-")
+            )
+            subprocess.run(
+                [
+                    "docker", "cp",
+                    f"{container_name}:/workspace/.",
+                    str(self._workspace),
+                ],
+                capture_output=True,
+                check=True,
+                timeout=60,
+            )
+            logger.info(
+                "Copied workspace from container to %s", self._workspace
+            )
+
+            return self._workspace
+
+        finally:
+            # 5. Always remove the container
+            subprocess.run(
+                ["docker", "rm", "-f", container_name],
+                capture_output=True,
+                timeout=30,
+            )
+
+    # ------------------------------------------------------------------
+    # Local fallback mode (original behavior)
+    # ------------------------------------------------------------------
+
+    def _setup_local(self) -> Path:
+        """Set up workspace using local tempdir (fallback mode)."""
         self._workspace = Path(tempfile.mkdtemp(prefix=f"agentbench-{self.task.id}-"))
         logger.info("Created sandbox workspace: %s", self._workspace)
 

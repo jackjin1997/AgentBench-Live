@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from agentbench.adapters.aider import AiderAdapter
 from agentbench.adapters.claude_code import ClaudeCodeAdapter
 from agentbench.adapters.codex_cli import CodexCLIAdapter
 from agentbench.adapters.gemini_cli import GeminiCLIAdapter
@@ -54,6 +55,22 @@ class TestGeminiCLIAdapter:
         adapter = GeminiCLIAdapter()
         cmd = adapter._build_command("Write code")
         assert cmd == ["gemini", "--non-interactive", "-p", "Write code"]
+
+
+class TestAiderAdapter:
+    def test_name(self):
+        assert AiderAdapter.name == "aider"
+
+    def test_cli_command(self):
+        assert AiderAdapter.cli_command == "aider"
+
+    def test_api_key(self):
+        assert AiderAdapter.api_key_env_var == "OPENAI_API_KEY"
+
+    def test_build_command(self):
+        adapter = AiderAdapter()
+        cmd = adapter._build_command("Refactor the code")
+        assert cmd == ["aider", "--yes-always", "--no-git", "--message", "Refactor the code"]
 
 
 class TestCodexCLIAdapter:

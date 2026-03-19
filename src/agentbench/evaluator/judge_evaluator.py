@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 from agentbench.adapters.base import AgentResult
 from agentbench.config import BenchmarkConfig, load_config
@@ -13,6 +14,8 @@ from agentbench.sandbox import Sandbox
 from agentbench.schema import Task
 
 logger = logging.getLogger(__name__)
+
+_CODE_KEYWORDS = re.compile(r"\b(def|class|import|function|return)\b")
 
 
 class LLMJudgeEvaluator:
@@ -41,20 +44,13 @@ class LLMJudgeEvaluator:
         scores = self._call_llm_judge(judge_prompt, judge_cfg.model)
 
         if "error" in scores:
-            has_outputs = (
-                len(output_content) > 0
-                and any(
-                    len(v) > self._config.eval.output_min_length
-                    for v in output_content.values()
-                )
-            )
-            fallback = self._config.eval.judge_fallback_score if has_outputs else 0.0
+            fallback = self._heuristic_score(result, output_content)
             return EvalScore(
                 task_id=task.id,
                 agent_name=result.agent_name,
                 score=fallback,
-                details={"output_presence": fallback, "judge_fallback": True},
-                judge_narrative="LLM judge unavailable; scored by output presence",
+                details={"heuristic_score": fallback, "judge_fallback": True},
+                judge_narrative="Heuristic fallback (LLM judge unavailable)",
             )
 
         avg_score = sum(scores.values()) / max(len(scores), 1) / 10.0
@@ -66,6 +62,38 @@ class LLMJudgeEvaluator:
             details=scores,
             judge_narrative=str(scores),
         )
+
+    def _heuristic_score(
+        self, result: AgentResult, output_content: dict[str, str],
+    ) -> float:
+        """Compute a heuristic fallback score when the LLM judge is unavailable.
+
+        The score is capped at 0.6 to be honest that this is not a real
+        LLM evaluation.
+        """
+        logger.warning(
+            "LLM judge unavailable; using heuristic fallback (max 0.6)"
+        )
+        score = 0.0
+
+        # Longer stdout suggests the agent did meaningful work
+        if len(result.stdout) > 200:
+            score += 0.2
+
+        # Workspace files created/modified by the agent
+        if output_content and any(len(v) > 0 for v in output_content.values()):
+            score += 0.2
+
+        # Output contains code-like content
+        combined = result.stdout + " ".join(output_content.values())
+        if _CODE_KEYWORDS.search(combined):
+            score += 0.1
+
+        # Agent exited successfully
+        if result.success and result.exit_code == 0:
+            score += 0.1
+
+        return min(score, 0.6)
 
     def _build_judge_prompt(
         self,
