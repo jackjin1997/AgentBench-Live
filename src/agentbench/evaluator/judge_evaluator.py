@@ -147,6 +147,11 @@ Be strict but fair. A score of 7 means "good", 9 means "excellent", 5 means "med
         if scores is not None:
             return scores
 
+        # Try Google Gemini
+        scores = self._try_gemini(prompt, max_tokens)
+        if scores is not None:
+            return scores
+
         logger.error("All LLM judge backends failed for model %s", model)
         return {"error": 0.0}
 
@@ -217,6 +222,44 @@ Be strict but fair. A score of 7 means "good", 9 means "excellent", 5 means "med
             return json.loads(text)
         except Exception as exc:
             logger.warning("OpenAI judge call failed: %s", exc)
+            return None
+
+    def _try_gemini(
+        self, prompt: str, max_tokens: int
+    ) -> dict[str, float] | None:
+        """Try Google Gemini API for JSON scoring."""
+        try:
+            import google.generativeai as genai
+        except ImportError:
+            return None
+
+        import os
+        api_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            return None
+
+        try:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-2.0-flash")
+            response = model.generate_content(
+                prompt + "\n\nRespond with ONLY a JSON object, no other text.",
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=max_tokens,
+                    response_mime_type="application/json",
+                ),
+            )
+            text = response.text or ""
+            start = text.find("{")
+            end = text.rfind("}") + 1
+            if start >= 0 and end > start:
+                data = json.loads(text[start:end])
+                # Handle nested {"scores": {...}} format
+                if "scores" in data and isinstance(data["scores"], dict):
+                    return {k: float(v) for k, v in data["scores"].items()}
+                return {k: float(v) for k, v in data.items()}
+            return None
+        except Exception as exc:
+            logger.warning("Gemini judge call failed: %s", exc)
             return None
 
     @staticmethod
