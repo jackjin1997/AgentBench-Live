@@ -61,6 +61,8 @@ class TestExportDataset:
             pass
 
     def test_export_with_mock_client(self, tmp_path):
+        pytest.importorskip("langsmith")
+
         results_file = tmp_path / "results.json"
         results_file.write_text(json.dumps({
             "agent": "test",
