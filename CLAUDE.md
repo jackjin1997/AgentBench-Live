@@ -9,14 +9,14 @@ Get on GitHub Trending. Current: 2 stars. Need: 50-150+ stars/day spike.
 3. Coordinated multi-channel social push (Twitter, Reddit, HN, 小红书, V2EX)
 
 ## Current Sprint Scope (accepted from CEO review 2026-03-19)
-- [ ] Docker sandbox (replace tempdir with real isolation)
-- [ ] Add Codex CLI adapter
-- [ ] Add Aider adapter
-- [ ] Re-run ALL agents × ALL tasks with Docker (get real scores)
-- [ ] Methodology doc (docs/methodology.md)
-- [ ] Frontend redesign (radar charts, domain filtering, hero section)
-- [ ] Social card generator (shareable comparison images)
-- [ ] Update README for 4 agents
+- [x] Docker sandbox (replace tempdir with real isolation)
+- [x] Add Codex CLI adapter (already existed)
+- [x] Add Aider adapter
+- [ ] Re-run ALL agents × ALL tasks with Docker (get real scores) ← USER ACTION NEEDED
+- [x] Methodology doc (docs/methodology.md)
+- [x] Frontend redesign (radar charts, domain filtering, hero section)
+- [x] Social card generator (shareable comparison images)
+- [x] Update README for 4 agents
 
 ## Deferred (TODOS)
 - Agent Output Viewer (show actual agent work per task) — P2
