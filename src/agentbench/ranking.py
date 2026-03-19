@@ -1,7 +1,10 @@
 """Ranking system — aggregates results into leaderboard."""
 
 import json
+import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 def load_rankings(results_dir: Path) -> list[dict]:
@@ -21,12 +24,12 @@ def load_rankings(results_dir: Path) -> list[dict]:
             if agent not in agent_scores:
                 agent_scores[agent] = []
             agent_scores[agent].append(data["summary"])
-        except (json.JSONDecodeError, KeyError):
+        except (json.JSONDecodeError, KeyError) as exc:
+            logger.warning("Failed to load result file %s: %s", result_file, exc)
             continue
 
     rankings = []
     for agent, summaries in agent_scores.items():
-        # Use the most recent result for each agent
         latest = summaries[-1]
         rankings.append({
             "agent": agent,

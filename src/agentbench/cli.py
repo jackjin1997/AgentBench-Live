@@ -1,6 +1,9 @@
 """CLI entry point for AgentBench-Live."""
 
+from __future__ import annotations
+
 from pathlib import Path
+from typing import Optional
 
 import click
 from rich.console import Console
@@ -10,7 +13,7 @@ console = Console()
 
 
 @click.group()
-@click.version_option()
+@click.version_option(version="0.1.0")
 def main():
     """AgentBench-Live: The real-time leaderboard for AI agent task execution."""
     pass
@@ -20,16 +23,15 @@ def main():
 @click.option("--agent", required=True, help="Agent to benchmark (e.g. claude-code, openclaw)")
 @click.option("--domain", default="all", help="Task domain: code, research, data, tool-use, multi-step, or all")
 @click.option("--difficulty", default="all", help="Difficulty: easy, medium, hard, or all")
-@click.option("--trials", default=3, help="Number of trials per task (for pass@k)")
+@click.option("--trials", default=None, type=int, help="Number of trials per task (for pass@k)")
 @click.option("--output", default="results", help="Output directory for results")
 @click.option("--tasks-dir", default="tasks", help="Tasks directory path")
-def run(agent: str, domain: str, difficulty: str, trials: int, output: str, tasks_dir: str):
+def run(agent: str, domain: str, difficulty: str, trials: Optional[int], output: str, tasks_dir: str):
     """Run benchmark tasks against an agent."""
-    # Import here to ensure adapters are registered
     import agentbench.adapters.claude_code  # noqa: F401
-    import agentbench.adapters.openclaw  # noqa: F401
-    import agentbench.adapters.gemini_cli  # noqa: F401
     import agentbench.adapters.codex_cli  # noqa: F401
+    import agentbench.adapters.gemini_cli  # noqa: F401
+    import agentbench.adapters.openclaw  # noqa: F401
     from agentbench.runner import run_benchmark
 
     run_benchmark(
@@ -101,9 +103,9 @@ def tasks(tasks_dir: str, domain: str):
 def agents():
     """List available agent adapters."""
     import agentbench.adapters.claude_code  # noqa: F401
-    import agentbench.adapters.openclaw  # noqa: F401
-    import agentbench.adapters.gemini_cli  # noqa: F401
     import agentbench.adapters.codex_cli  # noqa: F401
+    import agentbench.adapters.gemini_cli  # noqa: F401
+    import agentbench.adapters.openclaw  # noqa: F401
     from agentbench.adapters import get_adapter, list_adapters
 
     table = Table(title="Available Agents")
@@ -112,10 +114,28 @@ def agents():
 
     for name in list_adapters():
         adapter = get_adapter(name)
-        available = "✅" if adapter.is_available() else "❌"
+        available = "YES" if adapter.is_available() else "NO"
         table.add_row(name, available)
 
     console.print(table)
+
+
+@main.command("upload-evaluators")
+def upload_evaluators():
+    """Upload AgentBench evaluators to LangSmith."""
+    from agentbench.langsmith_eval import upload_benchmark_evaluators
+
+    upload_benchmark_evaluators()
+
+
+@main.command("export-dataset")
+@click.argument("results_file")
+@click.option("--name", default="agentbench-live", help="Dataset name in LangSmith")
+def export_dataset(results_file: str, name: str):
+    """Export benchmark results as a LangSmith dataset."""
+    from agentbench.langsmith_dataset import export_dataset as _export
+
+    _export(Path(results_file), dataset_name=name)
 
 
 if __name__ == "__main__":
