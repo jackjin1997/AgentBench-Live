@@ -2,6 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/Tests-160_passed-brightgreen.svg)](tests/)
+[![Coverage](https://img.shields.io/badge/Coverage-90%25-brightgreen.svg)](tests/)
 [![Agents Tested](https://img.shields.io/badge/Agents_Tested-2-green.svg)](#-leaderboard)
 
 **The open benchmark for AI agent task execution.**
