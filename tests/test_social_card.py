@@ -66,6 +66,10 @@ def empty_results_file(tmp_path):
 
 
 class TestGenerateSocialCard:
+    @pytest.fixture(autouse=True)
+    def _require_matplotlib(self):
+        pytest.importorskip("matplotlib")
+
     def test_creates_png_file(self, results_file, tmp_path):
         """Test that generate_social_card creates a PNG file."""
         from agentbench.social_card import generate_social_card
