@@ -3,535 +3,1574 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AgentBench-Live — Real-Time Agent Leaderboard</title>
-  <meta name="description" content="The real-time leaderboard for AI agent task execution. We test how well agents get things done.">
+  <title>AgentBench-Live — Real-Time Agent Capability Leaderboard</title>
+  <meta name="description" content="The real-time leaderboard for AI agent task execution. We tested AI coding agents on 10 real-world tasks across 5 domains. No vibes. Just results.">
+
+  <!-- Social / Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AgentBench-Live — Who's the best AI coding agent?">
+  <meta property="og:description" content="We tested AI coding agents on 10 real-world tasks across 5 domains. No vibes. Just results. See how Claude Code, Gemini CLI, and others stack up.">
+  <meta property="og:url" content="https://jackjin1997.github.io/AgentBench-Live/">
+  <meta property="og:image" content="https://jackjin1997.github.io/AgentBench-Live/data/social-card.png">
+  <meta property="og:site_name" content="AgentBench-Live">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AgentBench-Live — Who's the best AI coding agent?">
+  <meta name="twitter:description" content="We tested AI coding agents on 10 real-world tasks across 5 domains. No vibes. Just results.">
+  <meta name="twitter:image" content="https://jackjin1997.github.io/AgentBench-Live/data/social-card.png">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#127942;</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
   <style>
     :root {
-      --bg: #0d1117;
-      --card: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #58a6ff;
-      --green: #3fb950;
-      --yellow: #d29922;
-      --red: #f85149;
-      --gold: #ffd700;
-      --silver: #c0c0c0;
-      --bronze: #cd7f32;
+      --bg: #0a0e14;
+      --bg-surface: #111820;
+      --card: #151d28;
+      --card-hover: #1a2433;
+      --border: #1e2a3a;
+      --border-light: #2a3a4e;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --muted: #64748b;
+      --accent: #3b82f6;
+      --accent-light: #60a5fa;
+      --accent-glow: rgba(59, 130, 246, 0.15);
+      --green: #22c55e;
+      --green-dim: rgba(34, 197, 94, 0.12);
+      --yellow: #eab308;
+      --yellow-dim: rgba(234, 179, 8, 0.12);
+      --red: #ef4444;
+      --red-dim: rgba(239, 68, 68, 0.12);
+      --gold: #fbbf24;
+      --silver: #94a3b8;
+      --bronze: #d97706;
+      --purple: #a78bfa;
+      --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
-    /* Hero */
-    header {
-      text-align: center;
-      padding: 48px 0 32px;
+    /* ---- Animations ---- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+      50%      { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px rgba(59,130,246,0.08); }
+    }
+    @keyframes shimmer {
+      0%, 100% { background-position: 0% center; }
+      50% { background-position: 200% center; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s cubic-bezier(.22,.61,.36,1), transform 0.7s cubic-bezier(.22,.61,.36,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-d1 { transition-delay: 0.08s; }
+    .reveal-d2 { transition-delay: 0.16s; }
+    .reveal-d3 { transition-delay: 0.24s; }
+    .reveal-d4 { transition-delay: 0.32s; }
+    .reveal-d5 { transition-delay: 0.4s; }
+
+    /* ---- Ambient background ---- */
+    .bg-glow {
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 900px;
+      background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bg-glow-2 {
+      position: fixed;
+      bottom: -30%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(34,197,94,0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ---- Navbar ---- */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 14, 20, 0.85);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
       border-bottom: 1px solid var(--border);
+      padding: 0 24px;
     }
-
-    header h1 {
-      font-size: 2.4em;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    header h1 span { color: var(--accent); }
-
-    header p {
-      color: var(--muted);
-      font-size: 1.1em;
-      max-width: 600px;
+    .navbar-inner {
+      max-width: 1120px;
       margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .navbar-brand {
+      font-weight: 800;
+      font-size: 1.05em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .navbar-brand .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse-glow 2.5s ease infinite;
+      box-shadow: 0 0 8px rgba(34,197,94,0.4);
+    }
+    .navbar-links { display: flex; gap: 6px; align-items: center; }
+    .navbar-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.87em;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: color 0.2s, background 0.2s;
+    }
+    .navbar-links a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.04);
+    }
+    .navbar-cta {
+      background: var(--accent) !important;
+      color: #fff !important;
+      font-weight: 600 !important;
+      padding: 6px 16px !important;
+    }
+    .navbar-cta:hover {
+      background: var(--accent-light) !important;
     }
 
+    /* ---- Hero ---- */
+    .hero {
+      text-align: center;
+      padding: 80px 0 64px;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-light);
+      background: var(--accent-glow);
+      border: 1px solid rgba(59,130,246,0.2);
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .hero-badge .pulse {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      animation: pulse-glow 2s ease infinite;
+    }
+    .hero h1 {
+      font-size: clamp(2.2em, 5vw, 3.6em);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 20px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, #e2e8f0 0%, #3b82f6 40%, #22c55e 80%, #a78bfa 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 6s ease-in-out infinite;
+    }
+    .hero .subtitle {
+      color: var(--text-secondary);
+      font-size: clamp(1em, 2vw, 1.25em);
+      max-width: 580px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
     .hero-actions {
-      margin-top: 20px;
       display: flex;
       gap: 12px;
       justify-content: center;
       flex-wrap: wrap;
     }
 
-    .cta-btn {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--bg);
-      padding: 10px 24px;
-      border-radius: 6px;
-      text-decoration: none;
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 0.95em;
       font-weight: 600;
-      transition: opacity 0.2s;
+      text-decoration: none;
       border: none;
       cursor: pointer;
-      font-size: 1em;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
-
-    .cta-btn:hover { opacity: 0.85; }
-
-    .cta-btn.secondary {
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(59,130,246,0.25);
+    }
+    .btn-success {
+      background: var(--green);
+      color: #fff;
+    }
+    .btn-success:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(34,197,94,0.25);
+    }
+    .btn-ghost {
       background: transparent;
-      color: var(--accent);
-      border: 1px solid var(--accent);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    .btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+    /* ---- Stats ---- */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin: 0 0 56px;
+      position: relative;
+      z-index: 1;
+    }
+    .stat-item {
+      background: var(--card);
+      text-align: center;
+      padding: 28px 16px;
+      transition: background 0.2s;
+    }
+    .stat-item:hover { background: var(--card-hover); }
+    .stat-number {
+      font-size: 2.4em;
+      font-weight: 800;
+      color: var(--accent-light);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 0.78em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
     }
 
-    .cta-btn.secondary:hover {
-      background: rgba(88, 166, 255, 0.1);
-      opacity: 1;
+    /* ---- Podium / Rank Cards ---- */
+    .podium-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .section-header {
+      margin-bottom: 24px;
+    }
+    .section-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 0.95em;
     }
 
-    /* Stats bar */
-    .stats-bar {
-      display: flex;
+    .podium-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .podium-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+    .podium-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .podium-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .podium-card.gold { border-color: rgba(251,191,36,0.2); }
+    .podium-card.gold::before { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+    .podium-card.gold:hover { border-color: rgba(251,191,36,0.4); box-shadow: 0 12px 40px rgba(251,191,36,0.1); }
+    .podium-card.silver { border-color: rgba(148,163,184,0.2); }
+    .podium-card.silver::before { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+    .podium-card.silver:hover { border-color: rgba(148,163,184,0.3); }
+    .podium-card.bronze { border-color: rgba(217,119,6,0.2); }
+    .podium-card.bronze::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .podium-card.bronze:hover { border-color: rgba(217,119,6,0.3); }
+    .podium-card.rest { border-color: rgba(59,130,246,0.15); }
+    .podium-card.rest::before { background: var(--accent); }
+
+    .podium-rank {
+      display: inline-flex;
+      align-items: center;
       justify-content: center;
-      gap: 32px;
-      padding: 20px 0;
-      margin: 24px 0;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      font-weight: 800;
+      font-size: 1em;
+      margin-bottom: 14px;
+    }
+    .gold .podium-rank  { background: rgba(251,191,36,0.12); color: var(--gold); border: 2px solid rgba(251,191,36,0.25); }
+    .silver .podium-rank { background: rgba(148,163,184,0.12); color: var(--silver); border: 2px solid rgba(148,163,184,0.25); }
+    .bronze .podium-rank { background: rgba(217,119,6,0.12); color: var(--bronze); border: 2px solid rgba(217,119,6,0.25); }
+    .rest .podium-rank   { background: var(--accent-glow); color: var(--accent-light); border: 2px solid rgba(59,130,246,0.2); }
+
+    .podium-agent-name { font-size: 1.15em; font-weight: 700; margin-bottom: 10px; }
+    .podium-score {
+      font-size: 2.6em;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .gold .podium-score { color: var(--gold); }
+    .silver .podium-score { color: var(--silver); }
+    .bronze .podium-score { color: var(--bronze); }
+    .rest .podium-score { color: var(--accent-light); }
+
+    .podium-sublabel {
+      font-size: 0.78em;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .podium-pass-rate {
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+
+    /* ---- Animated horizontal bars ---- */
+    .bar-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .bar-label {
+      width: 120px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 0.95em;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 32px;
+      background: var(--bg-surface);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      border: 1px solid var(--border);
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 7px;
+      width: 0;
+      transition: width 1.2s cubic-bezier(.22,.61,.36,1);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 10px;
+    }
+    .bar-fill-value {
+      font-size: 0.82em;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      white-space: nowrap;
+    }
+    .bar-fill.agent-0 { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .bar-fill.agent-1 { background: linear-gradient(90deg, #22c55e, #4ade80); }
+    .bar-fill.agent-2 { background: linear-gradient(90deg, #eab308, #facc15); }
+    .bar-fill.agent-3 { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .bar-fill.agent-4 { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
+
+    .bar-legend {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin-top: 20px;
       flex-wrap: wrap;
     }
-
-    .stat { text-align: center; }
-
-    .stat-value {
-      font-size: 2em;
-      font-weight: 700;
-      color: var(--accent);
+    .bar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88em;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .bar-legend-dot {
+      width: 12px; height: 12px;
+      border-radius: 3px;
     }
 
-    .stat-label {
-      font-size: 0.85em;
+    /* ---- Radar Chart ---- */
+    .chart-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .chart-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 32px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ---- Domain filter ---- */
+    .filter-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 7px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
       color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      cursor: pointer;
+      font-size: 0.85em;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent-light); }
+    .filter-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
     }
 
-    /* Table */
+    /* ---- Table ---- */
+    .table-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .table-card {
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      overflow: hidden;
+    }
     .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 24px 0;
-    }
-
+    table { width: 100%; border-collapse: collapse; }
     thead th {
       text-align: left;
-      padding: 12px 14px;
-      border-bottom: 2px solid var(--border);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       color: var(--muted);
-      font-size: 0.8em;
+      font-size: 0.75em;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       cursor: pointer;
       user-select: none;
       white-space: nowrap;
+      background: var(--bg-surface);
+      font-weight: 700;
+      position: sticky;
+      top: 0;
     }
-
-    thead th:hover { color: var(--accent); }
-    thead th.sort-asc::after { content: " \u25B2"; color: var(--accent); }
-    thead th.sort-desc::after { content: " \u25BC"; color: var(--accent); }
-
+    thead th:hover { color: var(--accent-light); }
+    thead th.sort-asc::after { content: " \25B2"; color: var(--accent); font-size: 0.9em; }
+    thead th.sort-desc::after { content: " \25BC"; color: var(--accent); font-size: 0.9em; }
     tbody tr {
       border-bottom: 1px solid var(--border);
       transition: background 0.15s;
     }
-
-    tbody tr:hover { background: rgba(88, 166, 255, 0.05); }
-
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(59,130,246,0.03); }
     td {
-      padding: 12px 14px;
+      padding: 14px 16px;
       vertical-align: middle;
       white-space: nowrap;
     }
-
-    .rank {
-      font-weight: 700;
-      font-size: 1.1em;
-      width: 50px;
-    }
-
+    .rank-cell { font-weight: 800; font-size: 1.05em; width: 50px; }
     .rank-1 { color: var(--gold); }
     .rank-2 { color: var(--silver); }
     .rank-3 { color: var(--bronze); }
+    .agent-name-cell { font-weight: 600; font-size: 1em; }
 
-    .agent-name {
-      font-weight: 600;
-      font-size: 1.05em;
+    .score-bar-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    .score-bar-container {
-      width: 100px;
-      height: 8px;
+    .score-bar-track {
+      width: 80px; height: 6px;
       background: var(--border);
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 8px;
     }
-
-    .score-bar {
+    .score-bar-inner {
       height: 100%;
-      border-radius: 4px;
-      transition: width 0.5s ease;
+      border-radius: 3px;
+      transition: width 0.8s ease;
     }
+    .c-high { background: var(--green); color: var(--green); }
+    .c-mid  { background: var(--yellow); color: var(--yellow); }
+    .c-low  { background: var(--red); color: var(--red); }
+    .pr-val { font-weight: 700; }
+    .domain-cell { font-size: 0.85em; font-variant-numeric: tabular-nums; }
 
-    .score-high { background: var(--green); }
-    .score-mid { background: var(--yellow); }
-    .score-low { background: var(--red); }
-
-    .pass-rate { font-weight: 600; }
-    .pass-high { color: var(--green); }
-    .pass-mid { color: var(--yellow); }
-    .pass-low { color: var(--red); }
-
-    .domain-cell {
-      font-size: 0.85em;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Expandable task breakdown */
+    /* Expand button */
     .expand-btn {
       background: none;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 3px 10px;
-      border-radius: 4px;
+      padding: 4px 14px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 0.8em;
       transition: all 0.2s;
+      font-family: inherit;
     }
+    .expand-btn:hover { border-color: var(--accent); color: var(--accent-light); }
 
-    .expand-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .task-breakdown {
-      display: none;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-    }
-
+    /* Task breakdown */
+    .task-breakdown { display: none; background: var(--bg-surface); }
     .task-breakdown.open { display: table-row; }
-
-    .task-breakdown td {
-      padding: 16px 14px;
-    }
-
+    .task-breakdown td { padding: 16px; }
     .task-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
       gap: 8px;
     }
-
     .task-card {
-      background: var(--bg);
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.85em;
+      transition: border-color 0.2s;
+    }
+    .task-card:hover { border-color: rgba(59,130,246,0.3); }
+    .task-card.hidden-by-filter { display: none; }
+    .task-card-id {
+      color: var(--muted);
+      font-size: 0.78em;
+      margin-bottom: 4px;
+      font-family: var(--font-mono);
+    }
+    .task-domain-badge {
+      display: inline-block;
+      font-size: 0.62em;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: var(--accent-glow);
+      color: var(--accent-light);
+      margin-left: 4px;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      vertical-align: middle;
+    }
+    .task-card-score { font-weight: 700; font-size: 1.1em; }
+    .task-badge {
+      display: inline-block;
+      font-size: 0.68em;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    .badge-pass { background: var(--green-dim); color: var(--green); }
+    .badge-fail { background: var(--red-dim); color: var(--red); }
+
+    /* ---- Head-to-Head comparison ---- */
+    .h2h-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .h2h-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .h2h-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .h2h-task-label {
+      font-family: var(--font-mono);
+      font-size: 0.78em;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .h2h-bars { display: flex; flex-direction: column; gap: 6px; }
+    .h2h-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82em;
+    }
+    .h2h-agent-label {
+      width: 90px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      font-size: 0.85em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .h2h-bar-track {
+      flex: 1;
+      height: 16px;
+      background: var(--bg);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .h2h-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0;
+      transition: width 1s cubic-bezier(.22,.61,.36,1);
+    }
+    .h2h-val {
+      width: 42px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
       font-size: 0.85em;
     }
 
-    .task-card-id {
-      color: var(--muted);
-      font-size: 0.8em;
-      margin-bottom: 4px;
-      font-family: 'SFMono-Regular', Consolas, monospace;
-    }
-
-    .task-card-score {
-      font-weight: 700;
-      font-size: 1.1em;
-    }
-
-    .task-badge {
-      display: inline-block;
-      font-size: 0.7em;
-      padding: 1px 6px;
-      border-radius: 3px;
-      margin-left: 6px;
-      font-weight: 600;
-      vertical-align: middle;
-    }
-
-    .badge-pass { background: rgba(63, 185, 80, 0.2); color: var(--green); }
-    .badge-fail { background: rgba(248, 81, 73, 0.2); color: var(--red); }
-
-    /* Methodology */
-    .methodology {
+    /* ---- Methodology ---- */
+    .methodology-section { margin-bottom: 56px; position: relative; z-index: 1; }
+    .methodology-card {
       background: var(--card);
       border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 36px;
+    }
+    .methodology-card h2 { margin-bottom: 20px; font-size: 1.3em; }
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .method-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .method-icon {
+      width: 36px; height: 36px;
       border-radius: 8px;
-      padding: 24px;
-      margin: 40px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1em;
+      background: var(--accent-glow);
+      border: 1px solid rgba(59,130,246,0.15);
     }
-
-    .methodology h2 {
-      margin-bottom: 16px;
-      font-size: 1.2em;
+    .method-text { font-size: 0.92em; color: var(--text-secondary); line-height: 1.6; }
+    .method-text strong { color: var(--text); }
+    .methodology-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 24px;
+      color: var(--accent-light);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95em;
+      transition: gap 0.2s;
     }
+    .methodology-link:hover { gap: 8px; }
 
-    .methodology ul {
-      list-style: none;
-      padding: 0;
+    /* ---- CTA banner ---- */
+    .cta-banner {
+      background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(34,197,94,0.06) 100%);
+      border: 1px solid rgba(59,130,246,0.15);
+      border-radius: 14px;
+      padding: 48px 32px;
+      text-align: center;
+      margin-bottom: 56px;
+      position: relative;
+      z-index: 1;
     }
-
-    .methodology li {
-      padding: 4px 0;
-      color: var(--muted);
+    .cta-banner h2 {
+      font-size: 1.6em;
+      margin-bottom: 12px;
     }
-
-    .methodology li::before {
-      content: "\2192 ";
-      color: var(--accent);
+    .cta-banner p {
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
     }
+    .cta-banner .btn-row {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cta-install {
+      display: inline-block;
+      margin-top: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+      color: var(--text-secondary);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+    .cta-install .dollar { color: var(--muted); }
 
-    /* Footer */
+    /* ---- Footer ---- */
     footer {
       text-align: center;
-      padding: 40px 0;
+      padding: 40px 0 48px;
       color: var(--muted);
-      font-size: 0.9em;
+      font-size: 0.88em;
       border-top: 1px solid var(--border);
+      position: relative;
+      z-index: 1;
     }
-
-    footer a { color: var(--accent); text-decoration: none; }
+    footer .tagline {
+      color: var(--text-secondary);
+      font-size: 0.95em;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    footer .footer-links {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
     .updated-at {
       text-align: center;
       color: var(--muted);
-      font-size: 0.85em;
-      margin-top: 8px;
+      font-size: 0.82em;
+      margin-top: 12px;
     }
-
-    /* Empty state */
     .empty-state {
       text-align: center;
-      padding: 60px 0;
+      padding: 80px 0;
       color: var(--muted);
     }
+    .empty-state h2 { margin-bottom: 12px; color: var(--text); }
 
-    .empty-state h2 { margin-bottom: 12px; }
-
-    /* Responsive */
+    /* ---- Responsive ---- */
     @media (max-width: 768px) {
-      header h1 { font-size: 1.6em; }
-      .stats-bar { gap: 16px; }
-      .stat-value { font-size: 1.4em; }
-      .score-bar-container { width: 50px; }
-      td, th { padding: 10px 8px; font-size: 0.85em; }
-      .task-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-      .container { padding: 0 12px; }
+      .hero { padding: 56px 0 44px; }
+      .hero h1 { font-size: 2em; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .stat-number { font-size: 1.8em; }
+      .stat-item { padding: 20px 12px; }
+      .bar-label { width: 80px; font-size: 0.82em; }
+      .bar-track { height: 24px; }
+      .score-bar-track { width: 50px; }
+      td, th { padding: 10px 10px; font-size: 0.85em; }
+      .task-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+      .container { padding: 0 16px; }
+      .chart-wrap { padding: 20px; }
+      .podium-grid { grid-template-columns: repeat(2, 1fr); }
+      .methodology-card { padding: 24px; }
+      .method-grid { grid-template-columns: 1fr; }
+      .navbar-links a.hide-mobile { display: none; }
+      .h2h-grid { grid-template-columns: 1fr; }
+      .h2h-agent-label { width: 70px; }
     }
-
     @media (max-width: 480px) {
+      .hero h1 { font-size: 1.6em; }
       .domain-cell { display: none; }
-      header h1 { font-size: 1.3em; }
       .hero-actions { flex-direction: column; align-items: center; }
+      .podium-grid { grid-template-columns: 1fr; }
+      .filter-bar { justify-content: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .bar-label { width: 60px; font-size: 0.78em; }
+      .cta-banner { padding: 32px 20px; }
+      .cta-banner h2 { font-size: 1.3em; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><span>AgentBench</span>-Live</h1>
-      <p>The real-time leaderboard for AI agent task execution. We don't test how well agents chat &mdash; we test how well they <strong>get things done</strong>.</p>
-      <div class="hero-actions">
-        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" class="cta-btn">Add Your Agent</a>
-        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn secondary">View on GitHub</a>
-      </div>
-    </header>
 
-    <div class="stats-bar" id="stats-bar">
-      <div class="stat">
-        <div class="stat-value" id="stat-agents">&mdash;</div>
+  <!-- Ambient glows -->
+  <div class="bg-glow"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="#" class="navbar-brand">
+        <span class="dot"></span> AgentBench-Live
+      </a>
+      <div class="navbar-links">
+        <a href="#results" class="hide-mobile">Results</a>
+        <a href="#methodology" class="hide-mobile">Methodology</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live" target="_blank" class="hide-mobile">GitHub</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" target="_blank" class="navbar-cta">Add Your Agent</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge reveal">
+        <span class="pulse"></span> Live Benchmark
+      </div>
+      <h1 class="reveal reveal-d1">
+        <span class="gradient-text">Who's the best AI coding agent?</span>
+      </h1>
+      <p class="subtitle reveal reveal-d2">
+        We test agents on real-world tasks &mdash; code generation, data analysis, research, tool use, and multi-step workflows. No vibes. Just results.
+      </p>
+      <div class="hero-actions reveal reveal-d3">
+        <a href="https://github.com/jackjin1997/AgentBench-Live" target="_blank" class="btn btn-primary">
+          <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Star on GitHub
+        </a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" target="_blank" class="btn btn-success">Add Your Agent</a>
+        <a href="#methodology" class="btn btn-ghost">Methodology</a>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-strip reveal reveal-d3" id="stats-bar">
+      <div class="stat-item">
+        <div class="stat-number" id="stat-agents">&mdash;</div>
         <div class="stat-label">Agents Tested</div>
       </div>
-      <div class="stat">
-        <div class="stat-value" id="stat-tasks">&mdash;</div>
+      <div class="stat-item">
+        <div class="stat-number" id="stat-tasks">&mdash;</div>
         <div class="stat-label">Benchmark Tasks</div>
       </div>
-      <div class="stat">
-        <div class="stat-value" id="stat-domains">&mdash;</div>
+      <div class="stat-item">
+        <div class="stat-number" id="stat-domains">&mdash;</div>
         <div class="stat-label">Domains</div>
       </div>
-      <div class="stat">
-        <div class="stat-value" id="stat-trials">&mdash;</div>
+      <div class="stat-item">
+        <div class="stat-number" id="stat-trials">&mdash;</div>
         <div class="stat-label">Trials per Task</div>
       </div>
     </div>
 
-    <div id="leaderboard-container">
+    <!-- Podium Cards -->
+    <section class="podium-section reveal reveal-d3" id="results">
+      <div class="section-header">
+        <h2 class="section-title">Rankings</h2>
+        <p class="section-desc">Agents ranked by overall weighted score across all tasks.</p>
+      </div>
+      <div class="podium-grid" id="podium-grid"></div>
+    </section>
+
+    <!-- Animated Score Bars -->
+    <section class="bar-section reveal reveal-d4" id="bar-section" style="display:none;">
+      <div class="section-header">
+        <h2 class="section-title">Overall Score Comparison</h2>
+        <p class="section-desc">Animated head-to-head across all domains.</p>
+      </div>
+      <div class="bar-chart" id="bar-chart"></div>
+      <div class="bar-legend" id="bar-legend"></div>
+    </section>
+
+    <!-- Radar Chart -->
+    <section class="chart-section reveal reveal-d4" id="chart-section" style="display:none;">
+      <div class="section-header">
+        <h2 class="section-title">Domain Comparison</h2>
+        <p class="section-desc">Performance profile across the 5 evaluation domains.</p>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="radar-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- Head-to-Head Task Breakdown -->
+    <section class="h2h-section reveal" id="h2h-section" style="display:none;">
+      <div class="section-header">
+        <h2 class="section-title">Task-by-Task Breakdown</h2>
+        <p class="section-desc">Per-task score comparison for every benchmark task.</p>
+      </div>
+      <div class="h2h-grid" id="h2h-grid"></div>
+    </section>
+
+    <!-- Leaderboard Table -->
+    <section id="leaderboard-container">
       <div class="empty-state" id="empty-state">
         <h2>First benchmark coming soon</h2>
         <p>We're running the initial benchmark against Claude Code, Gemini CLI, and more.</p>
         <p style="margin-top: 8px;">Results will appear here automatically.</p>
-        <a href="https://github.com/jackjin1997/AgentBench-Live" class="cta-btn">Star on GitHub</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live" target="_blank" class="btn btn-primary" style="margin-top: 20px;">Star on GitHub</a>
       </div>
 
-      <div class="table-wrap">
-        <table id="leaderboard-table" style="display: none;">
-          <thead>
-            <tr>
-              <th data-sort="rank" data-type="num">Rank</th>
-              <th data-sort="name" data-type="str">Agent</th>
-              <th data-sort="overall_score" data-type="num" class="sort-desc">Overall Score</th>
-              <th data-sort="pass_rate" data-type="num">Pass Rate</th>
-              <th class="domain-cell">Code</th>
-              <th class="domain-cell">Data</th>
-              <th class="domain-cell">Multi-step</th>
-              <th class="domain-cell">Research</th>
-              <th class="domain-cell">Tool Use</th>
-              <th>Details</th>
-            </tr>
-          </thead>
-          <tbody id="leaderboard-body"></tbody>
-        </table>
+      <section class="table-section reveal" id="table-section" style="display:none;">
+        <div class="section-header">
+          <h2 class="section-title">Full Results</h2>
+          <p class="section-desc">Click column headers to sort. Expand rows for per-task detail.</p>
+        </div>
+
+        <div class="filter-bar" id="filter-bar">
+          <button class="filter-chip active" data-domain="all">All</button>
+          <button class="filter-chip" data-domain="code">Code</button>
+          <button class="filter-chip" data-domain="data">Data</button>
+          <button class="filter-chip" data-domain="multi_step">Multi-step</button>
+          <button class="filter-chip" data-domain="research">Research</button>
+          <button class="filter-chip" data-domain="tool_use">Tool Use</button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-wrap">
+            <table id="leaderboard-table">
+              <thead>
+                <tr>
+                  <th data-sort="rank" data-type="num">Rank</th>
+                  <th data-sort="name" data-type="str">Agent</th>
+                  <th data-sort="overall_score" data-type="num" class="sort-desc">Overall Score</th>
+                  <th data-sort="pass_rate" data-type="num">Pass Rate</th>
+                  <th class="domain-cell" data-sort="domain_code" data-type="num">Code</th>
+                  <th class="domain-cell" data-sort="domain_data" data-type="num">Data</th>
+                  <th class="domain-cell" data-sort="domain_multi_step" data-type="num">Multi-step</th>
+                  <th class="domain-cell" data-sort="domain_research" data-type="num">Research</th>
+                  <th class="domain-cell" data-sort="domain_tool_use" data-type="num">Tool Use</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body"></tbody>
+            </table>
+          </div>
+          <div class="updated-at" id="updated-at" style="padding: 12px;"></div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Methodology -->
+    <section class="methodology-section reveal" id="methodology">
+      <div class="methodology-card">
+        <h2>How We Test</h2>
+        <div class="method-grid">
+          <div class="method-item">
+            <div class="method-icon">5</div>
+            <div class="method-text"><strong>5 domains</strong> &mdash; Code, Research, Data Analysis, Tool Use, Multi-step Workflows</div>
+          </div>
+          <div class="method-item">
+            <div class="method-icon">10</div>
+            <div class="method-text"><strong>10 benchmark tasks</strong> with Easy, Medium, and Hard difficulty levels</div>
+          </div>
+          <div class="method-item">
+            <div class="method-icon">&#x21BB;</div>
+            <div class="method-text"><strong>pass@k reliability</strong> &mdash; each task run multiple times; we report consistency, not best-of</div>
+          </div>
+          <div class="method-item">
+            <div class="method-icon">&#x229E;</div>
+            <div class="method-text"><strong>Sandboxed execution</strong> &mdash; every task runs in an isolated Docker environment</div>
+          </div>
+          <div class="method-item">
+            <div class="method-icon">&#x2696;</div>
+            <div class="method-text"><strong>Dual scoring</strong> &mdash; automated tests + LLM-as-Judge for subjective tasks</div>
+          </div>
+          <div class="method-item">
+            <div class="method-icon">&gt;_</div>
+            <div class="method-text"><strong>CLI agents first</strong> &mdash; Claude Code, Gemini CLI, Codex CLI, Aider, and more</div>
+          </div>
+        </div>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/methodology.md" target="_blank" class="methodology-link">Read full methodology &rarr;</a>
       </div>
-      <div class="updated-at" id="updated-at"></div>
-    </div>
+    </section>
 
-    <div class="methodology">
-      <h2>Methodology</h2>
-      <ul>
-        <li><strong>5 domains</strong>: Code, Research, Data Analysis, Tool Use, Multi-step Workflows</li>
-        <li><strong>10 benchmark tasks</strong> with Easy / Medium / Hard difficulty levels</li>
-        <li><strong>pass@k reliability</strong>: Each task run multiple times &mdash; we report consistency, not best-of</li>
-        <li><strong>Sandboxed execution</strong>: Every task runs in an isolated environment</li>
-        <li><strong>Dual scoring</strong>: Automated tests + LLM-as-Judge for subjective tasks</li>
-        <li><strong>CLI agents first</strong>: Claude Code, Gemini CLI, Codex CLI, and more</li>
-        <li><strong>Fully reproducible</strong>: <code>pip install agentbench-live && agentbench run --agent &lt;name&gt;</code></li>
-      </ul>
-    </div>
+    <!-- CTA Banner -->
+    <section class="cta-banner reveal">
+      <h2>Benchmark your own agent</h2>
+      <p>Fully open-source and reproducible. Add your agent adapter and run the full suite in minutes.</p>
+      <div class="btn-row">
+        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" target="_blank" class="btn btn-success">Add Your Agent</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/CONTRIBUTING.md" target="_blank" class="btn btn-ghost">Contributing Guide</a>
+      </div>
+      <div class="cta-install">
+        <span class="dollar">$ </span>pip install agentbench-live &amp;&amp; agentbench run --agent &lt;name&gt;
+      </div>
+    </section>
 
-    <footer>
-      <p>
-        <a href="https://github.com/jackjin1997/AgentBench-Live">GitHub</a> &middot;
-        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md">Submit Tasks</a> &middot;
-        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent">Add Your Agent</a> &middot;
-        MIT License
-      </p>
-      <p style="margin-top: 8px;">Built with the belief that the best way to improve agents is to measure them honestly.</p>
-    </footer>
   </div>
 
-  <script>
-    const DATA_URL = './data/rankings.json';
-    const DOMAIN_KEYS = ['code', 'data', 'multi_step', 'research', 'tool_use'];
-    let agentsData = [];
-    let sortState = { col: 'overall_score', dir: 'desc' };
+  <!-- Footer -->
+  <footer>
+    <p class="tagline">"The best way to improve agents is to measure them honestly."</p>
+    <div class="footer-links">
+      <a href="https://github.com/jackjin1997/AgentBench-Live" target="_blank">GitHub</a>
+      <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/methodology.md" target="_blank">Methodology</a>
+      <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a>
+      <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md" target="_blank">Submit Tasks</a>
+      <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" target="_blank">Add Your Agent</a>
+    </div>
+    <p>MIT License &middot; AgentBench-Live</p>
+  </footer>
 
-    async function loadLeaderboard() {
-      try {
-        const res = await fetch(DATA_URL);
+  <script>
+    // ---- Config ----
+    var DATA_URL = './data/rankings.json';
+    var DOMAIN_KEYS = ['code', 'data', 'multi_step', 'research', 'tool_use'];
+    var DOMAIN_LABELS = { code: 'Code', data: 'Data', multi_step: 'Multi-step', research: 'Research', tool_use: 'Tool Use' };
+    var AGENT_COLORS = [
+      { bar: 'agent-0', bg: 'rgba(59,130,246,0.18)', border: '#3b82f6', dot: '#3b82f6' },
+      { bar: 'agent-1', bg: 'rgba(34,197,94,0.18)', border: '#22c55e', dot: '#22c55e' },
+      { bar: 'agent-2', bg: 'rgba(234,179,8,0.18)', border: '#eab308', dot: '#eab308' },
+      { bar: 'agent-3', bg: 'rgba(239,68,68,0.18)', border: '#ef4444', dot: '#ef4444' },
+      { bar: 'agent-4', bg: 'rgba(167,139,250,0.18)', border: '#a78bfa', dot: '#a78bfa' },
+    ];
+
+    var agentsData = [];
+    var sortState = { col: 'overall_score', dir: 'desc' };
+    var activeDomainFilter = 'all';
+    var radarChart = null;
+
+    // ---- Intersection Observer for reveal animations ----
+    var revealObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.reveal').forEach(function(el) { revealObserver.observe(el); });
+
+    // ---- Helpers ----
+    function escHtml(s) {
+      var d = document.createElement('div');
+      d.appendChild(document.createTextNode(s));
+      return d.innerHTML;
+    }
+    function pct(v) { return (v * 100).toFixed(1) + '%'; }
+    function scoreColorClass(v) { return v >= 0.7 ? 'c-high' : v >= 0.4 ? 'c-mid' : 'c-low'; }
+    function getRankStyle(i) { return i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'rest'; }
+    function getSorted() {
+      return agentsData.slice().sort(function(a, b) { return b.overall_score - a.overall_score; });
+    }
+    function getTaskDomain(id) {
+      if (id.startsWith('code-'))     return 'code';
+      if (id.startsWith('data-'))     return 'data';
+      if (id.startsWith('multi-'))    return 'multi_step';
+      if (id.startsWith('research-')) return 'research';
+      if (id.startsWith('tool-'))     return 'tool_use';
+      return 'unknown';
+    }
+
+    // ---- Load ----
+    function loadLeaderboard() {
+      fetch(DATA_URL).then(function(res) {
         if (!res.ok) return;
-        const data = await res.json();
-        if (!data.agents || data.agents.length === 0) return;
+        return res.json();
+      }).then(function(data) {
+        if (!data || !data.agents || data.agents.length === 0) return;
 
         agentsData = data.agents;
+        agentsData.forEach(function(a) {
+          DOMAIN_KEYS.forEach(function(d) {
+            a['domain_' + d] = (a.domains && a.domains[d]) ? a.domains[d].score : 0;
+          });
+        });
 
-        // Populate stats
         document.getElementById('stat-agents').textContent = data.agents.length;
         document.getElementById('stat-tasks').textContent = data.tasks_count || '10';
         document.getElementById('stat-domains').textContent = DOMAIN_KEYS.length;
         document.getElementById('stat-trials').textContent = data.trials_per_task || '1';
 
-        // Timestamp
         if (data.updated_at) {
           document.getElementById('updated-at').textContent = 'Last updated: ' + data.updated_at;
         }
 
-        // Show table, hide empty state
         document.getElementById('empty-state').style.display = 'none';
-        document.getElementById('leaderboard-table').style.display = 'table';
+        document.getElementById('table-section').style.display = 'block';
+        document.getElementById('chart-section').style.display = 'block';
+        document.getElementById('bar-section').style.display = 'block';
+        document.getElementById('h2h-section').style.display = 'block';
 
+        renderPodium();
+        renderBars();
         renderTable();
-      } catch (e) {
-        // Data not available yet -- show empty state
+        renderRadar();
+        renderH2H();
+
+        // Re-observe newly visible sections
+        document.querySelectorAll('.reveal:not(.visible)').forEach(function(el) { revealObserver.observe(el); });
+      }).catch(function(e) {
         console.error('Failed to load rankings:', e);
-      }
+      });
     }
 
-    function scoreClass(v) {
-      return v >= 0.7 ? 'score-high' : v >= 0.4 ? 'score-mid' : 'score-low';
+    // ---- Podium Cards ----
+    function renderPodium() {
+      var sorted = getSorted();
+      var container = document.getElementById('podium-grid');
+      container.textContent = '';
+      sorted.forEach(function(agent, i) {
+        var style = getRankStyle(i);
+        var prClass = scoreColorClass(agent.pass_rate);
+        var card = document.createElement('div');
+        card.className = 'podium-card ' + style;
+
+        var rankEl = document.createElement('div');
+        rankEl.className = 'podium-rank';
+        rankEl.textContent = '#' + (i + 1);
+        card.appendChild(rankEl);
+
+        var nameEl = document.createElement('div');
+        nameEl.className = 'podium-agent-name';
+        nameEl.textContent = agent.name;
+        card.appendChild(nameEl);
+
+        var scoreEl = document.createElement('div');
+        scoreEl.className = 'podium-score';
+        scoreEl.textContent = pct(agent.overall_score);
+        card.appendChild(scoreEl);
+
+        var subEl = document.createElement('div');
+        subEl.className = 'podium-sublabel';
+        subEl.textContent = 'Overall Score';
+        card.appendChild(subEl);
+
+        var prEl = document.createElement('div');
+        prEl.className = 'podium-pass-rate ' + prClass;
+        prEl.textContent = pct(agent.pass_rate) + ' pass rate';
+        card.appendChild(prEl);
+
+        container.appendChild(card);
+      });
     }
 
-    function passClass(v) {
-      return v >= 0.7 ? 'pass-high' : v >= 0.4 ? 'pass-mid' : 'pass-low';
+    // ---- Animated Score Bars ----
+    function renderBars() {
+      var sorted = getSorted();
+      var barChart = document.getElementById('bar-chart');
+      var legend = document.getElementById('bar-legend');
+      barChart.textContent = '';
+      legend.textContent = '';
+
+      var allDomains = ['overall'].concat(DOMAIN_KEYS);
+      var labels = { overall: 'Overall', code: 'Code', data: 'Data', multi_step: 'Multi-step', research: 'Research', tool_use: 'Tool Use' };
+
+      allDomains.forEach(function(domain, di) {
+        sorted.forEach(function(agent, ai) {
+          var score = domain === 'overall'
+            ? agent.overall_score
+            : (agent.domains && agent.domains[domain] ? agent.domains[domain].score : 0);
+
+          var row = document.createElement('div');
+          row.className = 'bar-row';
+
+          var labelDiv = document.createElement('div');
+          labelDiv.className = 'bar-label';
+          if (ai === 0) {
+            var strong = document.createElement('strong');
+            strong.textContent = labels[domain];
+            labelDiv.appendChild(strong);
+          }
+          row.appendChild(labelDiv);
+
+          var trackDiv = document.createElement('div');
+          trackDiv.className = 'bar-track';
+
+          var fillDiv = document.createElement('div');
+          fillDiv.className = 'bar-fill ' + AGENT_COLORS[ai % AGENT_COLORS.length].bar;
+          fillDiv.setAttribute('data-width', String(score * 100));
+
+          var valSpan = document.createElement('span');
+          valSpan.className = 'bar-fill-value';
+          valSpan.textContent = pct(score);
+          fillDiv.appendChild(valSpan);
+
+          trackDiv.appendChild(fillDiv);
+          row.appendChild(trackDiv);
+          barChart.appendChild(row);
+        });
+        // Spacer between domain groups
+        if (di < allDomains.length - 1) {
+          var spacer = document.createElement('div');
+          spacer.style.height = '8px';
+          barChart.appendChild(spacer);
+        }
+      });
+
+      // Legend
+      sorted.forEach(function(agent, ai) {
+        var item = document.createElement('div');
+        item.className = 'bar-legend-item';
+
+        var dot = document.createElement('div');
+        dot.className = 'bar-legend-dot';
+        dot.style.background = AGENT_COLORS[ai % AGENT_COLORS.length].dot;
+        item.appendChild(dot);
+
+        var txt = document.createTextNode(agent.name);
+        item.appendChild(txt);
+
+        legend.appendChild(item);
+      });
+
+      // Animate bars when visible
+      var barObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var fills = e.target.querySelectorAll('.bar-fill');
+            fills.forEach(function(fill, idx) {
+              setTimeout(function() {
+                fill.style.width = fill.getAttribute('data-width') + '%';
+              }, idx * 40);
+            });
+            barObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      barObs.observe(barChart);
     }
 
-    function pct(v) {
-      return (v * 100).toFixed(1) + '%';
+    // ---- Radar Chart ----
+    function renderRadar() {
+      var sorted = getSorted();
+      var chartLabels = DOMAIN_KEYS.map(function(d) { return DOMAIN_LABELS[d]; });
+      var datasets = sorted.map(function(agent, i) {
+        var c = AGENT_COLORS[i % AGENT_COLORS.length];
+        return {
+          label: agent.name,
+          data: DOMAIN_KEYS.map(function(d) {
+            return agent.domains && agent.domains[d] ? +(agent.domains[d].score * 100).toFixed(1) : 0;
+          }),
+          fill: true,
+          backgroundColor: c.bg,
+          borderColor: c.border,
+          borderWidth: 2,
+          pointBackgroundColor: c.border,
+          pointBorderColor: 'rgba(255,255,255,0.8)',
+          pointBorderWidth: 1,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        };
+      });
+
+      var ctx = document.getElementById('radar-chart').getContext('2d');
+      if (radarChart) radarChart.destroy();
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: { labels: chartLabels, datasets: datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { stepSize: 20, color: '#64748b', backdropColor: 'transparent', font: { size: 10 } },
+              grid: { color: 'rgba(30, 42, 58, 0.7)' },
+              angleLines: { color: 'rgba(30, 42, 58, 0.7)' },
+              pointLabels: { color: '#e2e8f0', font: { size: 13, weight: '600' } },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: '#e2e8f0', padding: 20, usePointStyle: true, pointStyle: 'circle', font: { size: 13 } },
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) { return context.dataset.label + ': ' + context.raw + '%'; }
+              }
+            }
+          },
+          interaction: { intersect: false },
+        },
+      });
     }
 
+    // ---- Head-to-Head grid ----
+    function renderH2H() {
+      var sorted = getSorted();
+      if (sorted.length === 0) return;
+      var container = document.getElementById('h2h-grid');
+      container.textContent = '';
+
+      // Collect unique task ids
+      var taskIds = [];
+      sorted.forEach(function(a) {
+        (a.tasks || []).forEach(function(t) {
+          if (taskIds.indexOf(t.task_id) === -1) taskIds.push(t.task_id);
+        });
+      });
+
+      taskIds.forEach(function(tid) {
+        var domain = getTaskDomain(tid);
+        var card = document.createElement('div');
+        card.className = 'h2h-card';
+
+        // Header row
+        var header = document.createElement('div');
+        header.className = 'h2h-task-label';
+        var tidSpan = document.createElement('span');
+        tidSpan.textContent = tid;
+        header.appendChild(tidSpan);
+        var domBadge = document.createElement('span');
+        domBadge.className = 'task-domain-badge';
+        domBadge.textContent = DOMAIN_LABELS[domain] || domain;
+        header.appendChild(domBadge);
+        card.appendChild(header);
+
+        var barsDiv = document.createElement('div');
+        barsDiv.className = 'h2h-bars';
+
+        sorted.forEach(function(agent, ai) {
+          var task = (agent.tasks || []).find(function(t) { return t.task_id === tid; });
+          var score = task ? task.score : 0;
+          var cClass = scoreColorClass(score);
+          var colorIdx = ai % AGENT_COLORS.length;
+
+          var row = document.createElement('div');
+          row.className = 'h2h-bar-row';
+
+          var labelEl = document.createElement('div');
+          labelEl.className = 'h2h-agent-label';
+          labelEl.textContent = agent.name;
+          row.appendChild(labelEl);
+
+          var track = document.createElement('div');
+          track.className = 'h2h-bar-track';
+          var fill = document.createElement('div');
+          fill.className = 'h2h-bar-fill ' + AGENT_COLORS[colorIdx].bar;
+          fill.setAttribute('data-width', String(score * 100));
+          track.appendChild(fill);
+          row.appendChild(track);
+
+          var valEl = document.createElement('div');
+          valEl.className = 'h2h-val ' + cClass;
+          valEl.textContent = pct(score);
+          row.appendChild(valEl);
+
+          barsDiv.appendChild(row);
+        });
+
+        card.appendChild(barsDiv);
+        container.appendChild(card);
+      });
+
+      // Animate h2h bars
+      var h2hObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) {
+            var fills = e.target.querySelectorAll('.h2h-bar-fill');
+            fills.forEach(function(fill, idx) {
+              setTimeout(function() {
+                fill.style.width = fill.getAttribute('data-width') + '%';
+              }, idx * 50);
+            });
+            h2hObs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      h2hObs.observe(container);
+    }
+
+    // ---- Table ----
     function renderTable() {
-      // Sort
-      const sorted = [...agentsData].sort((a, b) => {
-        let va, vb;
+      var sorted = agentsData.slice().sort(function(a, b) {
+        var va, vb;
         if (sortState.col === 'name') {
-          va = a.name.toLowerCase();
-          vb = b.name.toLowerCase();
+          va = a.name.toLowerCase(); vb = b.name.toLowerCase();
           return sortState.dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
         }
-        va = a[sortState.col] ?? 0;
-        vb = b[sortState.col] ?? 0;
+        va = a[sortState.col] || 0; vb = b[sortState.col] || 0;
         return sortState.dir === 'asc' ? va - vb : vb - va;
       });
 
-      const tbody = document.getElementById('leaderboard-body');
-      tbody.innerHTML = '';
+      var tbody = document.getElementById('leaderboard-body');
+      tbody.textContent = '';
+      var colSpan = document.querySelectorAll('#leaderboard-table thead th').length;
 
-      sorted.forEach((agent, i) => {
-        const rank = i + 1;
-        const rankCls = rank <= 3 ? 'rank-' + rank : '';
-        const sc = agent.overall_score;
-        const pr = agent.pass_rate;
+      sorted.forEach(function(agent, i) {
+        var rank = i + 1;
+        var rankCls = rank <= 3 ? 'rank-' + rank : '';
+        var sc = agent.overall_score;
+        var pr = agent.pass_rate;
 
         // Main row
-        const row = document.createElement('tr');
-        row.innerHTML =
-          '<td class="rank ' + rankCls + '">#' + rank + '</td>' +
-          '<td class="agent-name">' + escHtml(agent.name) + '</td>' +
-          '<td>' +
-            '<span class="score-bar-container">' +
-              '<span class="score-bar ' + scoreClass(sc) + '" style="width:' + (sc * 100) + '%"></span>' +
-            '</span> ' +
-            pct(sc) +
-          '</td>' +
-          '<td class="pass-rate ' + passClass(pr) + '">' + pct(pr) + '</td>' +
-          DOMAIN_KEYS.map(function(d) {
-            var ds = agent.domains && agent.domains[d] ? agent.domains[d].score : 0;
-            return '<td class="domain-cell ' + passClass(ds) + '">' + pct(ds) + '</td>';
-          }).join('') +
-          '<td><button class="expand-btn" data-slug="' + agent.slug + '">Tasks</button></td>';
+        var row = document.createElement('tr');
+
+        // Rank cell
+        var rankTd = document.createElement('td');
+        rankTd.className = 'rank-cell ' + rankCls;
+        rankTd.textContent = '#' + rank;
+        row.appendChild(rankTd);
+
+        // Name cell
+        var nameTd = document.createElement('td');
+        nameTd.className = 'agent-name-cell';
+        nameTd.textContent = agent.name;
+        row.appendChild(nameTd);
+
+        // Score cell with bar
+        var scoreTd = document.createElement('td');
+        var scoreWrap = document.createElement('div');
+        scoreWrap.className = 'score-bar-wrap';
+        var scoreTrack = document.createElement('div');
+        scoreTrack.className = 'score-bar-track';
+        var scoreInner = document.createElement('div');
+        scoreInner.className = 'score-bar-inner ' + scoreColorClass(sc);
+        scoreInner.style.width = (sc * 100) + '%';
+        scoreTrack.appendChild(scoreInner);
+        scoreWrap.appendChild(scoreTrack);
+        var scoreText = document.createElement('span');
+        scoreText.textContent = pct(sc);
+        scoreWrap.appendChild(scoreText);
+        scoreTd.appendChild(scoreWrap);
+        row.appendChild(scoreTd);
+
+        // Pass rate cell
+        var prTd = document.createElement('td');
+        prTd.className = 'pr-val ' + scoreColorClass(pr);
+        prTd.textContent = pct(pr);
+        row.appendChild(prTd);
+
+        // Domain cells
+        DOMAIN_KEYS.forEach(function(d) {
+          var ds = agent.domains && agent.domains[d] ? agent.domains[d].score : 0;
+          var dTd = document.createElement('td');
+          dTd.className = 'domain-cell ' + scoreColorClass(ds);
+          dTd.textContent = pct(ds);
+          row.appendChild(dTd);
+        });
+
+        // Details button
+        var detailTd = document.createElement('td');
+        var expandBtn = document.createElement('button');
+        expandBtn.className = 'expand-btn';
+        expandBtn.setAttribute('data-slug', agent.slug);
+        expandBtn.textContent = 'Tasks';
+        detailTd.appendChild(expandBtn);
+        row.appendChild(detailTd);
+
         tbody.appendChild(row);
 
-        // Breakdown row (hidden by default)
+        // Breakdown row
         var brow = document.createElement('tr');
         brow.className = 'task-breakdown';
         brow.id = 'breakdown-' + agent.slug;
-        var tasks = agent.tasks || [];
-        var taskCards = tasks.map(function(t) {
-          var badgeCls = t.passed ? 'badge-pass' : 'badge-fail';
-          var badgeTxt = t.passed ? 'PASS' : 'FAIL';
-          return '<div class="task-card">' +
-            '<div class="task-card-id">' + escHtml(t.task_id) + '</div>' +
-            '<span class="task-card-score ' + passClass(t.score) + '">' + pct(t.score) + '</span>' +
-            '<span class="task-badge ' + badgeCls + '">' + badgeTxt + '</span>' +
-          '</div>';
-        }).join('');
-        brow.innerHTML = '<td colspan="10"><div class="task-grid">' + taskCards + '</div></td>';
+
+        var breakTd = document.createElement('td');
+        breakTd.setAttribute('colspan', String(colSpan));
+        var taskGrid = document.createElement('div');
+        taskGrid.className = 'task-grid';
+
+        (agent.tasks || []).forEach(function(t) {
+          var domain = getTaskDomain(t.task_id);
+          var hide = (activeDomainFilter !== 'all' && domain !== activeDomainFilter) ? ' hidden-by-filter' : '';
+
+          var taskCard = document.createElement('div');
+          taskCard.className = 'task-card' + hide;
+          taskCard.setAttribute('data-domain', domain);
+
+          var idDiv = document.createElement('div');
+          idDiv.className = 'task-card-id';
+          idDiv.textContent = t.task_id + ' ';
+          var domSpan = document.createElement('span');
+          domSpan.className = 'task-domain-badge';
+          domSpan.textContent = DOMAIN_LABELS[domain] || domain;
+          idDiv.appendChild(domSpan);
+          taskCard.appendChild(idDiv);
+
+          var scoreSpan = document.createElement('span');
+          scoreSpan.className = 'task-card-score ' + scoreColorClass(t.score);
+          scoreSpan.textContent = pct(t.score);
+          taskCard.appendChild(scoreSpan);
+
+          var badge = document.createElement('span');
+          badge.className = 'task-badge ' + (t.passed ? 'badge-pass' : 'badge-fail');
+          badge.textContent = t.passed ? 'PASS' : 'FAIL';
+          taskCard.appendChild(badge);
+
+          taskGrid.appendChild(taskCard);
+        });
+
+        breakTd.appendChild(taskGrid);
+        brow.appendChild(breakTd);
         tbody.appendChild(brow);
       });
 
@@ -539,22 +1578,16 @@
       document.querySelectorAll('.expand-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
           var slug = this.getAttribute('data-slug');
-          var row = document.getElementById('breakdown-' + slug);
-          if (row) {
-            row.classList.toggle('open');
-            this.textContent = row.classList.contains('open') ? 'Hide' : 'Tasks';
+          var breakdownRow = document.getElementById('breakdown-' + slug);
+          if (breakdownRow) {
+            breakdownRow.classList.toggle('open');
+            this.textContent = breakdownRow.classList.contains('open') ? 'Hide' : 'Tasks';
           }
         });
       });
     }
 
-    function escHtml(s) {
-      var div = document.createElement('div');
-      div.appendChild(document.createTextNode(s));
-      return div.innerHTML;
-    }
-
-    // Column sorting
+    // ---- Column sorting ----
     document.querySelectorAll('thead th[data-sort]').forEach(function(th) {
       th.addEventListener('click', function() {
         var col = this.getAttribute('data-sort');
@@ -564,14 +1597,30 @@
           sortState.col = col;
           sortState.dir = (col === 'name' || col === 'rank') ? 'asc' : 'desc';
         }
-        document.querySelectorAll('thead th').forEach(function(t) {
-          t.classList.remove('sort-asc', 'sort-desc');
-        });
+        document.querySelectorAll('thead th').forEach(function(t) { t.classList.remove('sort-asc', 'sort-desc'); });
         this.classList.add('sort-' + sortState.dir);
         renderTable();
       });
     });
 
+    // ---- Domain filter ----
+    document.querySelectorAll('.filter-chip').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+        activeDomainFilter = this.getAttribute('data-domain');
+        document.querySelectorAll('.task-card').forEach(function(card) {
+          var cd = card.getAttribute('data-domain');
+          if (activeDomainFilter === 'all' || cd === activeDomainFilter) {
+            card.classList.remove('hidden-by-filter');
+          } else {
+            card.classList.add('hidden-by-filter');
+          }
+        });
+      });
+    });
+
+    // ---- Init ----
     loadLeaderboard();
   </script>
 </body>
