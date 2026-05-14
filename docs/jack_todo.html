@@ -297,11 +297,26 @@
   <!-- BLOCKERS -->
   <h2><span class="num">🚧</span> 已知 blocker / 必须用户做的事</h2>
   <ul class="todo-list">
-    <li class="todo-item" data-id="blocker-1">
+    <li class="todo-item done" data-id="blocker-1" data-locked="1">
       <span class="todo-checkbox"></span>
       <div class="todo-text">
-        <b>API key 是硬阻塞</b>
-        <small>没有 ANTHROPIC_API_KEY + OPENAI_API_KEY 跑不了 day 2 全套 benchmark · 也不能触发 LLM judge · 必须用户提供</small>
+        <b>~~API key 是硬阻塞~~ — 已绕过</b>
+        <small>✓ 实测发现 4 个 agent CLI 全部 OAuth login 工作（claude / gemini / codex / aider 都已 logged in），不需要 export ENV var · benchmark sweep 已在 background 启动</small>
+      </div>
+    </li>
+    <li class="todo-item" data-id="blocker-docker">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <span class="tag tag-user">USER</span><b>启动 Docker Desktop（提升可信度）</b>
+        <small>当前 sweep 在 LocalSandbox fallback 模式跑（功能 OK 但可信度损失）· 启动 Docker Desktop 后我可以重跑一次"高可信度版本"，HN/Reddit 用户挑战时有 Docker 数据可援引</small>
+        <small class="warn">⚠ 不阻塞 launch · 但 launch 前最好有 Docker 版本数据</small>
+      </div>
+    </li>
+    <li class="todo-item" data-id="blocker-social-preview">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <span class="tag tag-user">USER</span><b>上传 GitHub repo Social Preview image</b>
+        <small>GitHub API 不支持上传 social preview image，必须 web UI：<br/>1. 打开 <a href="https://github.com/jackjin1997/AgentBench-Live/settings">repo settings</a><br/>2. 滚到 "Social preview" 段<br/>3. Upload <code>docs/social-card-v2.png</code><br/>4. 这决定 GitHub URL 在 Twitter/Slack/Discord 分享时的预览图</small>
       </div>
     </li>
     <li class="todo-item" data-id="blocker-2">
