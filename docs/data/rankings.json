@@ -3,6 +3,8 @@
   "benchmark_version": "0.2.1",
   "tasks_count": 10,
   "trials_per_task": 1,
+  "trials_observed_max": 2,
+  "variance_note": "v0.2 published-file scores reflect a single trial per task. The variance findings highlighted on the leaderboard (Claude Code overall 0.604 vs 0.656; tool-001 swing 0.0 -> 0.7) come from comparing independent dev-time runs and are documented in docs/findings.md with full per-trial data. v0.3 will publish multi-trial means with min/max/median in this file directly.",
   "scoring_note": "Code tasks use auto-eval (pytest). Other domains scored by Gemini 2.5 Flash LLM Judge or heuristic fallback. Agents run in interactive mode with stdin prompts.",
   "agents": [
     {
