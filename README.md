@@ -13,7 +13,7 @@ Most agent leaderboards report a single number. We don't think that's honest.
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![Release](https://img.shields.io/badge/Release-v0.2.0-blue.svg)](https://github.com/jackjin1997/AgentBench-Live/releases)
 
-[Live Leaderboard](https://jackjin1997.github.io/AgentBench-Live/) · [Methodology](docs/methodology.md) · [Findings](docs/findings.md) · [Contributing](CONTRIBUTING.md)
+[Live Leaderboard](https://jackjin1997.github.io/AgentBench-Live/) · [Methodology](docs/methodology.md) · [Findings](docs/findings.md) · [Roadmap](docs/roadmap.md) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
