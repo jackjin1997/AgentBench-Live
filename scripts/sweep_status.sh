@@ -39,13 +39,14 @@ for log in "$LOG_DIR"/*.log; do
   [ "$name" = "sweep" ] && continue
   [ ! -f "$log" ] && continue
 
-  size=$(wc -l < "$log" | tr -d ' ')
+  size=$(awk 'END{print NR}' "$log")
   last_mod=$(stat -f "%m" "$log" 2>/dev/null || stat -c "%Y" "$log" 2>/dev/null || echo 0)
   now=$(date +%s)
   age_sec=$((now - last_mod))
 
-  # Count completed trials (lines ending with "best: X.XX")
-  trials_done=$(grep -cE 'best: [0-9]\.[0-9]{2}$' "$log" 2>/dev/null || echo 0)
+  # Count completed task summaries (lines like "best: X.XX")
+  trials_done=$(grep -c 'best:' "$log" 2>/dev/null || true)
+  trials_done=${trials_done:-0}
   # Total expected: 10 tasks
   # Find current task being worked on
   current_task=$(grep -E '^[a-z]+-[0-9]{3} —' "$log" | tail -1 | awk '{print $1}')
@@ -63,9 +64,12 @@ for log in "$LOG_DIR"/*.log; do
     "$name" "$trials_done" "${current_task:-?}" "${current_trial:-?}"
 done
 
-# All done?
-if grep -q "ALL DONE" "$LOG_DIR/sweep.log" 2>/dev/null; then
+# All done? (set +e because grep -q exits 1 when not found, which is normal)
+set +e
+grep -q "ALL DONE" "$LOG_DIR/sweep.log" 2>/dev/null
+if [ $? -eq 0 ]; then
   echo ""
   printf "${GREEN}${BOLD}✓ Sweep complete.${RESET}\n"
   printf "Next: ${BOLD}python scripts/refresh_publication.py --trials 3${RESET}\n"
 fi
+exit 0
