@@ -4,32 +4,33 @@ Thanks for your interest in improving how we measure AI agents.
 
 ## Ways to Contribute
 
-### Add a New Agent Adapter (~50 lines)
+### Add a New Agent Adapter (~15 lines)
 
 The fastest way to contribute. Create `src/agentbench/adapters/your_agent.py`:
 
 ```python
-from agentbench.adapters.base import BaseAdapter, AgentResult
+from agentbench.adapters.base import AgentAdapter
+from agentbench.adapters.registry import register_adapter
 
-class YourAgentAdapter(BaseAdapter):
+
+@register_adapter
+class YourAgentAdapter(AgentAdapter):
+    """Adapter for Your Agent CLI."""
+
     name = "your-agent"
-    command = "your-agent-cli"
+    cli_command = "your-cli"
+    api_key_env_var = "YOUR_API_KEY"  # optional; remove if no key needed
+    prompt_via_stdin = True            # set False to pass via argv instead
 
-    def run(self, prompt, workspace, timeout_seconds, network):
-        result = subprocess.run(
-            [self.command, "--prompt", prompt],
-            cwd=str(workspace),
-            capture_output=True, text=True,
-            timeout=timeout_seconds,
-        )
-        return AgentResult(
-            agent_name=self.name,
-            stdout=result.stdout,
-            returncode=result.returncode,
-        )
+    def _build_command(self, prompt: str) -> list[str]:
+        return ["your-cli", "--run"]
 ```
 
-Register it in `src/agentbench/adapters/__init__.py`, run the benchmark, and submit a PR with your results.
+The base class handles sandbox setup, environment isolation, timeout enforcement, and output capture. You only define the CLI invocation.
+
+Add the import to `src/agentbench/adapters/__init__.py` so the registry picks it up, run the benchmark on at least one task, and submit a PR with your results.
+
+Reference adapters live in `src/agentbench/adapters/{claude_code,gemini_cli,codex_cli,aider}.py` — read those before writing your own.
 
 ### Add a New Benchmark Task
 
