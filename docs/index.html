@@ -901,19 +901,86 @@
         <span class="pulse"></span> Live Benchmark
       </div>
       <h1 class="reveal reveal-d1">
-        <span class="gradient-text">Who's the best AI coding agent?</span>
+        We re-ran the same agent twice.<br/>
+        Got <span style="color: var(--red);">0.0</span> then <span style="color: var(--green);">0.7</span>.
       </h1>
       <p class="subtitle reveal reveal-d2">
-        We test agents on real-world tasks &mdash; code generation, data analysis, research, tool use, and multi-step workflows. No vibes. Just results.
+        Most AI agent leaderboards report a single number. We don't think that's honest.<br/>
+        This one shows variance.
       </p>
       <div class="hero-actions reveal reveal-d3">
         <a href="https://github.com/jackjin1997/AgentBench-Live" target="_blank" class="btn btn-primary">
           <svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           Star on GitHub
         </a>
-        <a href="https://github.com/jackjin1997/AgentBench-Live#adding-your-agent" target="_blank" class="btn btn-success">Add Your Agent</a>
-        <a href="#methodology" class="btn btn-ghost">Methodology</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live#add-your-agent-in-15-lines" target="_blank" class="btn btn-success">Add Your Agent</a>
+        <a href="https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/findings.md" target="_blank" class="btn btn-ghost">Read findings →</a>
       </div>
+    </section>
+
+    <!-- Findings cards: 3 反共识发现 -->
+    <section class="findings-section reveal reveal-d3" style="margin: 0 0 32px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--red); border-radius: 12px; padding: 20px 22px;">
+          <div style="font-size: 0.72em; color: var(--red); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Finding 1</div>
+          <div style="font-size: 1.08em; font-weight: 700; margin: 10px 0 8px; color: var(--text);">"Tied overall" hides 7× per-axis gaps.</div>
+          <div style="color: var(--text-secondary); font-size: 0.92em; line-height: 1.6;">Claude Code 0.63 vs Gemini CLI 0.52 looks close. But on Tool Use, <b style="color: var(--text);">Claude is 7× better</b>. The average lies.</div>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--yellow); border-radius: 12px; padding: 20px 22px;">
+          <div style="font-size: 0.72em; color: var(--yellow); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Finding 2</div>
+          <div style="font-size: 1.08em; font-weight: 700; margin: 10px 0 8px; color: var(--text);">Code tasks are commodity now.</div>
+          <div style="color: var(--text-secondary); font-size: 0.92em; line-height: 1.6;">Both agents score <b style="color: var(--text);">1.00 on every code task</b>. "Which AI writes code better" is the wrong question in 2026.</div>
+        </div>
+        <div style="background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--green); border-radius: 12px; padding: 20px 22px;">
+          <div style="font-size: 0.72em; color: var(--green); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;">Finding 3</div>
+          <div style="font-size: 1.08em; font-weight: 700; margin: 10px 0 8px; color: var(--text);">Same agent. Same task. 70-point swing.</div>
+          <div style="color: var(--text-secondary); font-size: 0.92em; line-height: 1.6;">Claude Code on <code style="background: rgba(255,255,255,0.05); padding: 1px 5px; border-radius: 3px; font-size: 0.95em;">tool-001</code>: trial 1 = 0.0, trial 2 = 0.7. <b style="color: var(--text);">Why we run ≥3 trials.</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Variance panel: 真正的反共识 -->
+    <section class="variance-panel reveal reveal-d3" style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 30px; margin: 0 0 36px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+        <h2 class="section-title" style="margin: 0; font-size: 1.4em;">Run-to-run variance <span style="color: var(--text-secondary); font-weight: 500; font-size: 0.7em;">(the part nobody publishes)</span></h2>
+        <span style="font-size: 0.78em; color: var(--text-secondary); font-family: ui-monospace, monospace;">v0.2 baseline · n=2-3 · v0.3 will be ≥5</span>
+      </div>
+      <p style="color: var(--text-secondary); margin: 0 0 18px; line-height: 1.6;">We re-ran each agent's full benchmark multiple times. <b style="color: var(--text);">Claude is high-variance. Gemini is low-variance.</b> Both deserve to be reported.</p>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;">Agent</th>
+              <th style="text-align: right; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700;">Run 1</th>
+              <th style="text-align: right; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700;">Run 2</th>
+              <th style="text-align: right; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700;">Run 3</th>
+              <th style="text-align: right; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700;">Spread</th>
+              <th style="text-align: left; padding: 12px 14px; font-size: 0.78em; color: var(--text-secondary); font-weight: 700;">Reading</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 14px;"><b>Claude Code</b></td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace;">0.604</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace;">0.656</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace; color: var(--text-secondary);">—</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace; color: var(--yellow); font-weight: 700;">±5%</td>
+              <td style="padding: 14px; color: var(--text-secondary);">High variance — single trial unreliable</td>
+            </tr>
+            <tr>
+              <td style="padding: 14px;"><b>Gemini CLI</b></td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace;">0.516</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace;">0.516</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace;">0.518</td>
+              <td style="text-align: right; padding: 14px; font-family: ui-monospace, monospace; color: var(--green); font-weight: 700;">±0.4%</td>
+              <td style="padding: 14px; color: var(--text-secondary);">Low variance — output very consistent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.88em; color: var(--text-secondary); margin: 18px 0 0; line-height: 1.6;">
+        <b style="color: var(--text);">Why this matters:</b> if SWE-bench / PinchBench / ClawProBench publish single-trial leaderboards on high-variance agents, the rankings can flip with a re-run. We report variance up front so you can judge for yourself.
+      </p>
     </section>
 
     <!-- Stats -->
