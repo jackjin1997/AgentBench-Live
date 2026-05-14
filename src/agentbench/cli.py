@@ -21,13 +21,19 @@ def main():
 
 @main.command()
 @click.option("--agent", required=True, help="Agent to benchmark (e.g. claude-code, openclaw)")
-@click.option("--domain", default="all", help="Task domain: code, research, data, tool-use, multi-step, or all")
+@click.option("--domain", default=None, help="Task domain: code, research, data, tool-use, multi-step, or all")
+@click.option("--tasks", "tasks_alias", default=None,
+              help="Alias for --domain (matches README examples). Use 'all' for full sweep.")
 @click.option("--difficulty", default="all", help="Difficulty: easy, medium, hard, or all")
 @click.option("--trials", default=None, type=int, help="Number of trials per task (for pass@k)")
 @click.option("--output", default="results", help="Output directory for results")
 @click.option("--tasks-dir", default="tasks", help="Tasks directory path")
-def run(agent: str, domain: str, difficulty: str, trials: Optional[int], output: str, tasks_dir: str):
+def run(agent: str, domain: Optional[str], tasks_alias: Optional[str],
+        difficulty: str, trials: Optional[int], output: str, tasks_dir: str):
     """Run benchmark tasks against an agent."""
+    # --tasks is a friendlier alias for --domain (matches the README quickstart).
+    # If both are given, --domain wins; if neither, default to 'all'.
+    domain = domain or tasks_alias or "all"
     import agentbench.adapters.aider  # noqa: F401
     import agentbench.adapters.claude_code  # noqa: F401
     import agentbench.adapters.codex_cli  # noqa: F401
