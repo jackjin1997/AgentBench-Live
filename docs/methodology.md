@@ -112,12 +112,44 @@ Results depend on:
 - LLM judge availability (for non-auto tasks)
 - Network access (for research/tool-use tasks)
 
+## Cost and Latency (v0.3 Roadmap)
+
+**Why we count both, not just quality.** A 0.7 score that costs $0.50 and takes 90s is not the same product as a 0.7 score that costs $0.02 and takes 12s. Most agent leaderboards ignore this dimension entirely.
+
+The `EvalScore` model (in `src/agentbench/evaluator/models.py`) already carries optional `CostMetrics` and `LatencyMetrics` fields:
+
+```python
+@dataclass
+class CostMetrics:
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    cost_usd: Optional[float] = None
+    raw: dict = field(default_factory=dict)  # provider-specific pass-through
+
+@dataclass
+class LatencyMetrics:
+    total_seconds: Optional[float] = None
+    time_to_first_output_seconds: Optional[float] = None
+    step_count: Optional[int] = None
+```
+
+**v0.2 status**: schema in place, not populated. Adapters do not yet capture token usage from CLI stdout.
+**v0.3 plan**:
+
+1. Each adapter parses agent stdout for token usage where available (Claude Code emits `--output-format=json` with usage; Gemini CLI exposes `--quiet --usage`; Codex CLI logs cost; Aider has `--show-token-cost`).
+2. The runner wraps agent invocation in a wall-clock timer that records `total_seconds`, plus parses logs for `time_to_first_output_seconds` and `step_count` where available.
+3. The leaderboard renders a 3-axis matrix: **score × cost × latency**, so users can pick by their actual constraint (best-quality, lowest-cost, fastest, or best-tradeoff).
+4. The composite ranking exposes weights so anyone can re-rank for their own preference (e.g. "I weigh latency 2× as much as cost").
+
+**Tradeoff acknowledgement**: an adapter that under-reports tokens looks artificially cheap. We treat missing data as `None`, never `0`, and surface "n agents missing data on axis X" in the leaderboard so users know what's comparable.
+
 ## Limitations
 
 - **Small task set.** 10 tasks across 5 domains is a starting point, not exhaustive. We actively seek task contributions.
 - **Agent availability.** Not all agents have CLI interfaces suitable for automated benchmarking. IDE-based agents (Cursor, Windsurf) cannot currently be tested.
 - **LLM judge variance.** LLM-as-judge scores have inherent variance (~±0.05). Auto-eval tasks are fully deterministic.
 - **Single-turn only.** Tasks test one-shot execution. Multi-turn interaction patterns are not yet evaluated.
+- **Sample size for variance claims.** v0.2 variance findings are based on n=2-3 full runs per agent. v0.3 targets n≥5.
 
 ## Contributing Tasks
 

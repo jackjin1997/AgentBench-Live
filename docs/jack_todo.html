@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AgentBench-Live · jack_todo</title>
+<style>
+  :root {
+    --bg: #fbfaf6; --bg-2: #ffffff; --bg-3: #f3f1eb;
+    --line: #ebe8df; --line-2: #d3cfc1;
+    --fg: #1a1815; --fg-2: #5a5648; --fg-3: #8a857a;
+    --accent: #1f7a3a; --accent-2: #5b21b6; --warn: #c2410c; --good: #15803d; --danger: #b91c1c;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+  body { line-height: 1.55; font-size: 15.5px; }
+  a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+  a:hover { opacity: .8; }
+  h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; margin: 0; }
+  h1 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.025em; }
+  h2 { font-size: 20px; margin-top: 40px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 12px; }
+  h2 .num { font-family: var(--mono); font-size: 12px; color: var(--accent); font-weight: 500; }
+  h3 { font-size: 16px; margin: 20px 0 10px; color: var(--fg-2); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  p { margin: 8px 0; }
+  small, .meta { color: var(--fg-3); font-size: 13px; }
+  .mono { font-family: var(--mono); }
+  code { font-family: var(--mono); font-size: 13px; background: var(--bg-3); padding: 1px 6px; border-radius: 4px; color: var(--accent); }
+  mark { background: #fef3c7; color: #1a1815; padding: 1px 4px; border-radius: 3px; box-shadow: inset 0 0 0 1px #fde68a; }
+
+  .container { max-width: 880px; margin: 0 auto; padding: 48px 24px 100px; }
+
+  /* HEADER */
+  header.top { padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border: 1px solid var(--line-2); border-radius: 99px; font-family: var(--mono); font-size: 11px; color: var(--fg-2); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .header-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+  /* PROGRESS */
+  .progress-card { margin-top: 22px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .progress-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .progress-num { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
+  .progress-num small { color: var(--fg-3); font-weight: 500; }
+  .progress-bar { margin-top: 12px; height: 6px; background: var(--bg-3); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; }
+
+  /* SPRINT */
+  .sprint-meta { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 14px 0 22px; }
+  .sprint-meta b { color: var(--accent); }
+  .sprint-meta ul { margin: 8px 0 0; padding-left: 18px; }
+  .sprint-meta li { margin: 4px 0; color: var(--fg-2); font-size: 14.5px; }
+
+  /* TODO ITEM */
+  .todo-list { list-style: none; padding: 0; margin: 0; }
+  .todo-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); cursor: pointer; user-select: none; }
+  .todo-item:last-child { border-bottom: none; }
+  .todo-item:hover { background: rgba(31, 122, 58, 0.03); }
+  .todo-checkbox { flex-shrink: 0; width: 18px; height: 18px; margin-top: 3px; border: 1.5px solid var(--line-2); border-radius: 4px; background: var(--bg-2); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .todo-checkbox::after { content: ""; width: 0; height: 0; border-radius: 1px; }
+  .todo-item.done .todo-checkbox { background: var(--accent); border-color: var(--accent); }
+  .todo-item.done .todo-checkbox::after { content: ""; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px); border-radius: 0; }
+  .todo-text { flex: 1; color: var(--fg); }
+  .todo-item.done .todo-text { color: var(--fg-3); text-decoration: line-through; }
+  .todo-text small { display: block; color: var(--fg-3); font-size: 13px; margin-top: 3px; }
+  .todo-text small.warn { color: var(--warn); }
+
+  /* DECISION TABLE */
+  .decision-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .decision-table th, .decision-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .decision-table th { color: var(--fg-2); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line-2); }
+
+  /* GROUPS */
+  .group { margin-top: 28px; }
+  .group-title { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+  .group-title h3 { margin: 0; }
+  .group-count { font-family: var(--mono); font-size: 12px; color: var(--fg-3); }
+
+  /* RESET BUTTON */
+  .reset-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 6px; color: var(--fg-2); cursor: pointer; font-size: 13px; font-family: var(--sans); margin-top: 16px; }
+  .reset-btn:hover { background: var(--bg-3); color: var(--danger); border-color: var(--danger); }
+
+  /* TAGS */
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10.5px; padding: 1px 7px; border-radius: 99px; margin-right: 6px; vertical-align: 1px; font-weight: 600; letter-spacing: 0.04em; }
+  .tag-ai { background: #dcfce7; color: #15803d; }
+  .tag-user { background: #fef3c7; color: #92400e; }
+
+  footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--fg-3); font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="top">
+    <h1>AgentBench-Live · jack_todo</h1>
+    <p class="meta" style="margin-top: 8px;">单一 source-of-truth · 跨 session 接力先看这里</p>
+    <div class="header-meta">
+      <span class="pill"><span class="dot"></span> 当前 sprint: Trending Launch (3-day)</span>
+      <span class="pill">2026-05-14 → 2026-05-16</span>
+      <span class="pill">目标: 首次 launch · ≥150 stars</span>
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-top">
+        <div>
+          <div class="progress-num"><span id="done-count">0</span><small> / </small><span id="total-count">0</span></div>
+          <div class="meta">活跃项完成数</div>
+        </div>
+        <div class="meta" id="progress-percent" style="font-family: var(--mono); font-size: 16px; color: var(--accent); font-weight: 600;">0%</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width: 0%;"></div></div>
+    </div>
+  </header>
+
+  <h2><span class="num">🔥</span> 当前 Sprint · Trending Launch (3-day)</h2>
+
+  <div class="sprint-meta">
+    <p><b>目标</b>：用"反共识戏剧化发现"作为 narrative，3 天内完成 v2 升级 + 全平台同日 launch，目标首日 ≥150 stars 进入 daily trending。</p>
+    <p style="margin-top: 10px;"><b>核心 narrative</b>：<mark>两个 agent 总分几乎一样，但每个能力轴都是 4-5 倍差距 — 平均分掩盖了真相</mark>（基于 Claude 0.53 vs Gemini 0.52 / Tool Use 5x / Data 4.5x）。</p>
+    <p style="margin-top: 10px;"><b>核心约束</b>：</p>
+    <ul>
+      <li>Day 1 不依赖 API key — 用现有 3-19 数据先把 narrative 立起来</li>
+      <li>Day 2 必须有真新数据（用户给 key）— 验证戏剧性是否仍成立</li>
+      <li>Launch 必须同日多平台齐发 — 任何一个 channel 单飞都浪费弹药</li>
+      <li>2026 年是 PinchBench / ClawProBench 的红海，唯一差异化是"Claude vs Gemini head-to-head"+ 戏剧化叙事</li>
+    </ul>
+    <p style="margin-top: 10px;"><span class="tag tag-ai">AI</span> = Claude 自动做 ・ <span class="tag tag-user">USER</span> = Jack 必须自己做</p>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="group">
+    <div class="group-title">
+      <h3>Day 1 · 5/14 周四 · v2 内容升级（AI 主导）</h3>
+      <span class="group-count" data-count="d1">—</span>
+    </div>
+    <ul class="todo-list" data-group="d1">
+      <li class="todo-item done" data-id="d1-1" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>分析现有 results/ 数据，提炼 3 个戏剧化反共识发现</b>
+          <small>遍历 results/*.json，按 task 维度比较 Claude Code vs Gemini CLI；产出 docs/findings.md，每条带具体 task id + 复现路径</small>
+        </div>
+      </li>
+      <li class="todo-item done" data-id="d1-2" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>重写 README hook（前 3 行）</b>
+          <small>从 "open benchmark for agent task execution" 改成戏剧化反共识叙事，配 1 张对比矩阵图</small>
+        </div>
+      </li>
+      <li class="todo-item done" data-id="d1-3" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>重做 leaderboard 首屏</b>
+          <small>把"对比矩阵 + 戏剧性差距"放第一屏，平均分 0.53/0.52 降权到次要位置</small>
+        </div>
+      </li>
+      <li class="todo-item done" data-id="d1-4" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>生成新版 social card</b>
+          <small>突出 5x/4.5x 差距对比，不只是"总分"。文件输出到 docs/social-card-v2.png</small>
+        </div>
+      </li>
+      <li class="todo-item done" data-id="d1-5" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>重写所有平台文案（HN / Twitter / Reddit×3 / 小红书 / V2EX / 即刻）</b>
+          <small>每条文案用同一个反共识 hook 但适配平台调性；存到 docs/launch-copy.md</small>
+        </div>
+      </li>
+      <li class="todo-item done" data-id="d1-6" data-locked="1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>加 cost / latency 两个轴的代码骨架</b>
+          <small>不跑数据，只在 evaluator 留接口和数据 schema，让"未来可扩展"在 README 体现可信度</small>
+          <small class="warn">⚠ 别陷进去 — 接口能 import 即可，数据等 day 2 再考虑跑</small>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="group">
+    <div class="group-title">
+      <h3>Day 2 · 5/15 周五 · 真数据 + Launch 弹药</h3>
+      <span class="group-count" data-count="d2">—</span>
+    </div>
+    <ul class="todo-list" data-group="d2">
+      <li class="todo-item" data-id="d2-1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>设置 API key</b>
+          <small><code>export ANTHROPIC_API_KEY=sk-ant-...</code> · <code>export OPENAI_API_KEY=sk-...</code></small>
+          <small class="warn">⚠ 硬阻塞 — 没 key 跑不了 day 2 后续</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-2">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>启动 Docker Desktop</b>
+          <small>让 Docker sandbox 真正生效（不然 fall back 到 LocalSandbox，可信度大打折扣）</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-3">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>跑全套 benchmark · 4 agent × 10 task</b>
+          <small>Claude Code + Gemini CLI + Codex CLI + Aider · 用 Docker sandbox · 至少 1 trial</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-4">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>验证戏剧性结论是否仍成立</b>
+          <small>如果新数据下 Tool Use 5x / Data 4.5x 不再成立，找新的戏剧化点；同时 Codex / Aider 加入会不会形成新对比</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-5">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>更新所有 launch 文案 + leaderboard 数据</b>
+          <small>用真实新数据替换 day 1 的草稿文案数字</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-6">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>写 90 秒 demo 视频脚本</b>
+          <small>纯文字脚本 · 用户自己用 OBS / QuickTime 录</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-7">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>录 90 秒 demo 视频</b>
+          <small>iPhone 横屏 / OBS 录屏 都行 · 上传到 YouTube unlisted 拿链接</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d2-8">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>准备 HN Q&A 弹药库</b>
+          <small>预测 HN 头 10 个尖锐问题 + 回复 draft（"你只测 10 个 task 够吗"、"为什么不用 SWE-bench"、"LLM judge 靠谱吗"等）</small>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- DAY 3 LAUNCH -->
+  <div class="group">
+    <div class="group-title">
+      <h3>Day 3 · 5/16 周六 · LAUNCH DAY（用户主导）</h3>
+      <span class="group-count" data-count="d3">—</span>
+    </div>
+    <ul class="todo-list" data-group="d3">
+      <li class="todo-item" data-id="d3-1">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>选定 launch 时间窗口</b>
+          <small>北京时间 周二/三/四 凌晨 0:00-3:00（对应 HN 美国西海岸早 9-11 点黄金时段）· 5/16 是周六，建议挪到下周二 5/19 launch</small>
+          <small class="warn">⚠ 周末发 HN 流量低 30-50%，建议把 launch 推迟 3 天，用周末多准备一轮</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d3-2">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>同日发帖 · 全 8 个平台</b>
+          <small>HN Show HN · Twitter · Reddit r/ClaudeAI + r/MachineLearning + r/LocalLLaMA · 小红书 · V2EX · 即刻 · 微信群</small>
+          <small>顺序：HN 第一发（最难起飞）→ 5 分钟后 Twitter → 30 分钟后 Reddit → 同步发中文平台</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d3-3">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-user">USER</span><b>发完后头 4 小时全程在线回复</b>
+          <small>HN 头 1 小时是命门；Reddit 头 30 分钟决定算法；Twitter 主动 @ 1-2 个 KOL</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d3-4">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>实时跟踪 star 增速</b>
+          <small>每小时 <code>gh api /repos/jackjin1997/AgentBench-Live</code> 查一次，记录到 docs/launch-tracker.json</small>
+        </div>
+      </li>
+      <li class="todo-item" data-id="d3-5">
+        <span class="todo-checkbox"></span>
+        <div class="todo-text">
+          <span class="tag tag-ai">AI</span><b>评论 reply draft 协助</b>
+          <small>用户把评论贴给我 → 我出 2-3 个 reply 风格 draft → 用户挑一个发</small>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- BLOCKERS -->
+  <h2><span class="num">🚧</span> 已知 blocker / 必须用户做的事</h2>
+  <ul class="todo-list">
+    <li class="todo-item" data-id="blocker-1">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <b>API key 是硬阻塞</b>
+        <small>没有 ANTHROPIC_API_KEY + OPENAI_API_KEY 跑不了 day 2 全套 benchmark · 也不能触发 LLM judge · 必须用户提供</small>
+      </div>
+    </li>
+    <li class="todo-item" data-id="blocker-2">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <b>发帖账号必须用户登录</b>
+        <small>HN / Reddit / Twitter / 小红书 / V2EX / 即刻 全部需要真实账号 · AI 不能代发 · 也不应该</small>
+      </div>
+    </li>
+    <li class="todo-item" data-id="blocker-3">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <b>账号信誉 = launch 命门</b>
+        <small class="warn">⚠ 新账号在 HN/Reddit 容易秒沉 · 检查：HN 账号 ≥3 个月 + ≥10 karma · Reddit r/MachineLearning 通常需要 100+ karma · 不达标的话考虑找朋友账号代发</small>
+      </div>
+    </li>
+    <li class="todo-item" data-id="blocker-4">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">
+        <b>Twitter 算法分发依赖预热</b>
+        <small>主推文发出后头 10 分钟需要有 ≥10 个真实 like/reply 才会被算法推到 For You · 提前找 3-5 个朋友约好同时互动</small>
+      </div>
+    </li>
+  </ul>
+
+  <!-- COMPLETED -->
+  <h2><span class="num">✅</span> 已完成（历史）</h2>
+  <ul class="todo-list">
+    <li class="todo-item done" data-id="done-init" data-locked="1">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">建立 docs/jack_todo.html · 项目执行 source-of-truth 启用</div>
+    </li>
+    <li class="todo-item done" data-id="done-mvp" data-locked="1">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">MVP 完成 · 4 adapter / Docker sandbox / Auto-eval + LLM judge / Leaderboard / 90% test coverage / GitHub Pages 上线</div>
+    </li>
+    <li class="todo-item done" data-id="done-bench-1" data-locked="1">
+      <span class="todo-checkbox"></span>
+      <div class="todo-text">首轮 benchmark · Claude Code + Gemini CLI × 10 task（数据日期：2026-03-19，已过时但可作 day 1 草稿底数）</div>
+    </li>
+  </ul>
+
+  <!-- LATER -->
+  <h2><span class="num">📋</span> Sprint 之后的事</h2>
+  <table class="decision-table">
+    <thead>
+      <tr><th>事项</th><th>触发条件</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>升级为 AgentBench Weekly · 自动化 nightly + 周报</td><td>首次 launch 后 ≥500 stars · 验证有持续观众</td></tr>
+      <tr><td>加 4-6 个新 agent（Cursor / Windsurf / OpenHands / Devin）</td><td>有 community PR 或 stars ≥1k 后第二波 launch</td></tr>
+      <tr><td>Agent Output Viewer · 在 leaderboard 展示每个 agent 在每个 task 的实际输出</td><td>核心 KPI 达成后 P2</td></tr>
+      <tr><td>GitHub Actions auto-benchmark CI</td><td>有人提 PR 加 adapter 后才有意义</td></tr>
+      <tr><td>Cost / Latency 两个轴跑真实数据</td><td>day 1 留了接口 · 第二波 launch 时填上做"v2 update"叙事</td></tr>
+    </tbody>
+  </table>
+
+  <button class="reset-btn" onclick="resetState()">↺ 重置勾选状态</button>
+
+  <footer>
+    <div>
+      AgentBench-Live · jack_todo · v1
+      <div class="meta" style="margin-top: 4px;">勾选状态用 localStorage 持久化在本机浏览器</div>
+    </div>
+    <div></div>
+  </footer>
+</div>
+
+<script>
+(function () {
+  const STORAGE_KEY = 'agentbench-live-jack-todo-v1';
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+  }
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function applyState() {
+    const state = loadState();
+    document.querySelectorAll('.todo-item').forEach(item => {
+      const id = item.dataset.id;
+      const locked = item.dataset.locked === '1';
+      if (locked) return;
+      if (state[id]) item.classList.add('done');
+      else item.classList.remove('done');
+    });
+    updateCounts();
+  }
+
+  function updateCounts() {
+    let totalActionable = 0, doneActionable = 0;
+    const groupStats = {};
+
+    document.querySelectorAll('.todo-list').forEach(list => {
+      const group = list.dataset.group;
+      let total = 0, done = 0;
+      list.querySelectorAll('.todo-item').forEach(item => {
+        if (item.dataset.locked === '1') return;
+        total++;
+        if (item.classList.contains('done')) done++;
+      });
+      if (group) groupStats[group] = { total, done };
+    });
+
+    document.querySelectorAll('[data-count]').forEach(el => {
+      const g = el.dataset.count;
+      if (groupStats[g]) {
+        el.textContent = `${groupStats[g].done} / ${groupStats[g].total}`;
+        el.style.color = groupStats[g].done === groupStats[g].total && groupStats[g].total > 0 ? 'var(--accent)' : 'var(--fg-3)';
+      }
+    });
+
+    Object.values(groupStats).forEach(s => {
+      totalActionable += s.total;
+      doneActionable += s.done;
+    });
+
+    document.getElementById('done-count').textContent = doneActionable;
+    document.getElementById('total-count').textContent = totalActionable;
+    const pct = totalActionable === 0 ? 0 : Math.round((doneActionable / totalActionable) * 100);
+    document.getElementById('progress-percent').textContent = pct + '%';
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+
+  document.querySelectorAll('.todo-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.dataset.locked === '1') return;
+      const state = loadState();
+      const id = item.dataset.id;
+      if (state[id]) { delete state[id]; item.classList.remove('done'); }
+      else { state[id] = true; item.classList.add('done'); }
+      saveState(state);
+      updateCounts();
+    });
+  });
+
+  window.resetState = function () {
+    if (!confirm('确定重置所有勾选状态？')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    applyState();
+  };
+
+  applyState();
+})();
+</script>
+</body>
+</html>
