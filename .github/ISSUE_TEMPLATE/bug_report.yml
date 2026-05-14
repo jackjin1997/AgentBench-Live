@@ -1,0 +1,70 @@
+name: Bug report
+description: Something in the benchmark, sandbox, evaluator, or leaderboard is misbehaving.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: please run the latest `main` and confirm the bug reproduces. If you saw an old released version, also try `pip install -e .` from latest.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the unexpected behavior.
+      placeholder: e.g. "agentbench run --agent claude-code crashed with TypeError on tool-001"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: e.g. "Score should be in [0, 1] or NaN, not raise."
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: Exact commands you ran. Include API keys redacted.
+      render: bash
+      placeholder: |
+        export ANTHROPIC_API_KEY=sk-ant-***
+        agentbench run --agent claude-code --tasks tool-001 --trials 1
+    validations:
+      required: true
+
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: |
+        Output of these three commands:
+        - `python --version`
+        - `pip show agentbench-live | grep -E 'Version|Location'`
+        - `docker --version` (or "no Docker, fell back to LocalSandbox")
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste the full error trace. **Redact API keys** (sk-ant-..., sk-...).
+      render: text
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I'm running latest `main` (or stated my version above)
+          required: true
+        - label: I confirmed this is reproducible (not a one-off transient failure)
+          required: false
+        - label: I redacted any API keys from logs above
+          required: true

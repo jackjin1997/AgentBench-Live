@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Read findings & methodology first
+    url: https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/findings.md
+    about: The 7×, code-commodity, and 0.0→0.7 variance findings live here. Saves 90% of the back-and-forth.
+  - name: Discussion / general questions
+    url: https://github.com/jackjin1997/AgentBench-Live/discussions
+    about: For open-ended questions, design discussions, or "is X a good idea?" — not bugs.

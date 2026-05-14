@@ -1,0 +1,64 @@
+name: Add a new agent
+description: Propose a new agent to add to the benchmark (Cursor, Windsurf, OpenHands, Devin, etc.).
+title: "[agent] Add support for "
+labels: ["new-agent", "help-wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Adding an agent is ~15 lines of Python — see [CONTRIBUTING.md](https://github.com/jackjin1997/AgentBench-Live/blob/main/CONTRIBUTING.md) for the template.
+
+        **Best path**: open a draft PR with the adapter rather than just an issue. Issues sit; PRs land.
+
+  - type: input
+    id: agent-name
+    attributes:
+      label: Agent name
+      placeholder: e.g. "Cursor", "OpenHands"
+    validations:
+      required: true
+
+  - type: input
+    id: agent-link
+    attributes:
+      label: Agent project / docs URL
+      placeholder: e.g. https://github.com/All-Hands-AI/OpenHands
+    validations:
+      required: true
+
+  - type: dropdown
+    id: cli-available
+    attributes:
+      label: Does the agent have a CLI suitable for headless invocation?
+      description: Adapters work via subprocess — IDE-only agents can't currently be benchmarked.
+      options:
+        - "Yes, has a CLI"
+        - "Has CLI but interactive-only (needs PTY)"
+        - "No CLI, IDE-embedded only"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: invocation
+    attributes:
+      label: Sample invocation command
+      description: How would the CLI be called for a one-shot task with a prompt?
+      render: bash
+      placeholder: e.g. "your-cli --run 'fix the failing test in foo.py'"
+
+  - type: textarea
+    id: who-tests
+    attributes:
+      label: Who's running the benchmark?
+      placeholder: e.g. "I have access to API key X and will submit results in the PR" or "I'm requesting; someone else needs to run."
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I checked existing adapters in `src/agentbench/adapters/`
+          required: true
+        - label: I read the 15-line adapter template in CONTRIBUTING.md
+          required: true

@@ -1,0 +1,78 @@
+name: Propose a new benchmark task
+description: Submit a task that should be added to the benchmark suite.
+title: "[task] "
+labels: ["new-task", "help-wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read the [task authoring guide](https://github.com/jackjin1997/AgentBench-Live/blob/main/docs/task-authoring.md) first. A good task is **deterministic, self-contained, time-calibrated, auto-scorable**.
+
+  - type: input
+    id: task-title
+    attributes:
+      label: Task title
+      placeholder: e.g. "Refactor a tangled module into 3 files"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Domain
+      options:
+        - "Code"
+        - "Data"
+        - "Multi-step"
+        - "Research"
+        - "Tool Use"
+        - "Other (suggest a new domain)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty
+      options:
+        - "Easy (~5-10 min for a competent dev)"
+        - "Medium (~15-30 min)"
+        - "Hard (~30-60 min)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Proposed task prompt
+      description: The exact instruction the agent will receive.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: scoring
+    attributes:
+      label: How should success be scored?
+      description: |
+        Best: pytest auto-eval (deterministic). Acceptable: LLM-as-Judge with clear rubric. Avoid: subjective "is the answer good".
+      placeholder: |
+        Auto-eval via `pytest /workspace/test_*.py`, OR
+        LLM judge with rubric: (1) ..., (2) ..., (3) ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: fixtures
+    attributes:
+      label: Required fixtures / setup
+      description: What files / installs / network access the agent will need.
+      placeholder: e.g. "fixtures/your-task/sales.csv (1.2KB), pip install pandas, no network needed"
+
+  - type: checkboxes
+    id: pr-intent
+    attributes:
+      label: Plan
+      options:
+        - label: I plan to PR the YAML + fixtures myself
+        - label: I'm proposing the task; happy if someone else implements it
